@@ -1,5 +1,11 @@
 # Advent of Code 2019
 
+![Pinky and ](.assets/pinky-and-the-brain.jpg)
+
+> Pinky: Gee, Brain. What are we going to do in December?
+>
+> The Brain: The same thing we do every year, Pinky. Try to take over the world.
+
 This year, I decided to complete the whole AoC challenge in Haskell.
 But why? Why not? In the last few days I started to experiment with
 Haskell a bit and I can say, I really like it. It's not natural
