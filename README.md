@@ -9,7 +9,7 @@
 This year, I decided to complete the whole AoC challenge in Haskell.
 But why? Why not? In the last few days I started to experiment with
 Haskell a bit and I can say, I really like it. It's not natural
-like Go, PHP, Haskell for me (yet), but two years ago C++ was not
+as Go, PHP or Python for me (yet), but two years ago C++ was not
 comfortable during the first few days, but I came out with a much
 better understanding of the language at the end. So that's
 my expectation: "after day 25 I can say, I know more and it was fun"
