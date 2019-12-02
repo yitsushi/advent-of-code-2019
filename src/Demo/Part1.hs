@@ -4,5 +4,5 @@ module Demo.Part1
 
 import Demo.Lib
 
-solve :: String -> IO ()
-solve = print . sum . map parseInt . words
+solve :: String -> String
+solve = show . sum . map parseInt . words

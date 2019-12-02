@@ -1,6 +1,18 @@
-module Day01.Part2 (solve) where
+module Day01.Part2
+  ( solve
+  ) where
 
-import Day01.Lib
+fuel :: Int -> Int
+fuel mass = mass `div` 3 - 2
 
-solve :: String -> IO ()
-solve input = putStrLn "Day#01::Part2"
+extraFuel' :: Int -> [Int]
+extraFuel' mass
+  | mass <= 0 = [0]
+  | otherwise = extraFuel' (fuel mass) ++ [mass]
+
+withExtraFuel :: Int -> Int
+withExtraFuel = sum . init . extraFuel'
+
+solve :: String -> String
+solve "No Input" = "No Input Defined!"
+solve input = (show . sum . map (withExtraFuel . read) . words) input

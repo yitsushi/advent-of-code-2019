@@ -7,14 +7,13 @@ import qualified Demo.Main
 import System.Directory
 
 -- TODO: Make it dynamic somehow?
-solve :: String -> (Int -> String -> IO ())
+solve :: String -> (Int -> String -> String)
 solve "demo" = Demo.Main.solve
 solve "01" = Day01.Main.solve
 solve day = notImplementedYet day
 
-notImplementedYet :: String -> Int -> String -> IO ()
-notImplementedYet day _ _ =
-  putStrLn $ "\n\n-- [Day" ++ day ++ "] Not Implemented Yet!\n"
+notImplementedYet :: String -> Int -> String -> String
+notImplementedYet day _ _ = "\n\n-- [Day" ++ day ++ "] Not Implemented Yet!\n"
 
 readInput :: String -> IO String
 readInput f = do

@@ -35,7 +35,7 @@ main = solver =<< execParser opts
 solver :: Options -> IO ()
 solver (Options oDay part oInput) = do
   input <- Solver.readInput oInput
-  Solver.solve day part input
+  putStrLn $ Solver.solve day part input
   where
     day =
       if oDay == 0

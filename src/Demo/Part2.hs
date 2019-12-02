@@ -5,8 +5,8 @@ module Demo.Part2
 import qualified Data.Set as Set
 import Demo.Lib
 
-solve :: String -> IO ()
-solve = print . tracker 0 Set.empty . cycle . map parseInt . words
+solve :: String -> String
+solve = show . tracker 0 Set.empty . cycle . map parseInt . words
 
 tracker :: Int -> Set.Set Int -> [Int] -> Int
 tracker value visited (x:xs) = next
