@@ -50,6 +50,18 @@ $ stack install
 $ advent-of-code-2019 --day=0 --part=1 --input=input/demo-2018-day01
 ```
 
+### Tests
+
+```
+$ stack test
+```
+
+For a specific day only
+
+```
+$ stack test --ta "-m Day03"
+```
+
 # History
 
  - [2018] => Python

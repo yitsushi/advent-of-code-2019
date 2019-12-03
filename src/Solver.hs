@@ -4,6 +4,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Text
 import qualified Day01.Main
 import qualified Day02.Main
+import qualified Day03.Main
 import qualified Demo.Main
 import System.Directory
 
@@ -12,6 +13,7 @@ solve :: String -> (Int -> String -> String)
 solve "demo" = Demo.Main.solve
 solve "01" = Day01.Main.solve
 solve "02" = Day02.Main.solve
+solve "03" = Day03.Main.solve
 solve day = notImplementedYet day
 
 notImplementedYet :: String -> Int -> String -> String
