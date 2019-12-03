@@ -1,23 +1,19 @@
 import Criterion.Main
 
-import Lib
+import qualified Data.List.Split
+import qualified Lib
 
 main =
   defaultMain
     [ bgroup
         "lpad"
-        [ bench "1" $ whnf lpad (1, '0', "1")
-        , bench "5" $ whnf lpad (5, '0', "1")
-        , bench "9" $ whnf lpad (10, '0', "1")
-        , bench "50" $ whnf lpad (50, '0', "1")
-        , bench "100" $ whnf lpad (100, '0', "1")
+        [ bench "50" $ whnf Lib.lpad (50, '0', "1")
+        , bench "100" $ whnf Lib.lpad (100, '0', "1")
         ]
     , bgroup
         "splitOn"
-        [ bench "1" $ nf splitOn (' ', "a")
-        , bench "5" $ nf splitOn (' ', unwords $ replicate 5 "a")
-        , bench "10" $ nf splitOn (' ', unwords $ replicate 10 "a")
-        , bench "50" $ nf splitOn (' ', unwords $ replicate 50 "a")
-        , bench "100" $ nf splitOn (' ', unwords $ replicate 100 "a")
+        [ bench "Lib" $ nf (Lib.splitOn ' ') (unwords $ replicate 50 "a")
+        , bench "Data.List.Split" $
+          nf (Data.List.Split.splitOn " ") (unwords $ replicate 50 "a")
         ]
     ]

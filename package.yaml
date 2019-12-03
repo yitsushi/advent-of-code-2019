@@ -65,3 +65,4 @@ benchmarks:
     dependencies:
     - advent-of-code
     - criterion
+    - split
