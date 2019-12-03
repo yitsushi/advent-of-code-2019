@@ -1,6 +1,6 @@
 # Advent of Code 2019
 
-![Pinky and ](.assets/pinky-and-the-brain.jpg)
+![Pinky and the Brain](.assets/pinky-and-the-brain.jpg)
 
 > Pinky: Gee, Brain. What are we going to do in December?
 >
@@ -51,6 +51,8 @@ $ advent-of-code-2019 --day=0 --part=1 --input=input/demo-2018-day01
 ```
 
 ### Tests
+
+[![Build Status](https://travis-ci.org/yitsushi/advent-of-code-2019.svg?branch=master)](https://travis-ci.org/yitsushi/advent-of-code-2019)
 
 ```
 $ stack test
