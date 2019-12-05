@@ -54,3 +54,25 @@ spec = do
         (Computer [2, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [] 0 [])
         [Immediate, Immediate, Immediate] `shouldBe`
       Computer [2, 9, 10, 90, 2, 3, 11, 0, 99, 30, 40, 50] [] 4 []
+  describe "inputCommand" $ do
+    it "example #1" $
+      inputCommand
+        (Computer [4, 5, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [4, 5, 10, 3, 2, 1, 11, 0, 99, 30, 40, 50] [1] 2 []
+    it "example #1" $
+      inputCommand
+        (Computer [4, 3, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [4, 3, 10, 1, 2, 3, 11, 0, 99, 30, 40, 50] [1] 2 []
+  describe "outputCommand" $ do
+    it "example #1" $
+      outputCommand
+        (Computer [3, 5, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [3, 5, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 2 [3]
+    it "example #1" $
+      outputCommand
+        (Computer [4, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [4, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 2 [10]

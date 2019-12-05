@@ -40,40 +40,61 @@ resolveValue :: Tape -> (ParameterMode, Int) -> Int
 resolveValue tape (Pointer, value) = tape !! value
 resolveValue tape (Immediate, value) = value
 
-preprocessorAddMul :: Tape -> [ParameterMode] -> Int -> (Int, Int, Tape, Tape)
-preprocessorAddMul tape pModes head = (p1, p2, before, after)
+resolveValues :: Tape -> [ParameterMode] -> Head -> Int -> [Int]
+resolveValues tape pModes phead number =
+  map (resolveValue tape) $ zip pModes (take number $ drop (phead + 1) tape)
+
+replaceRegister :: Tape -> Int -> Int -> Tape
+replaceRegister tape position value = before ++ value : after
   where
-    [p1, p2] =
-      map (resolveValue tape) $ zip pModes (take 2 $ drop (head + 1) tape)
-    destination = tape !! (head + 3)
-    before = take destination tape
-    after = drop (destination + 1) tape
+    before = take position tape
+    after = drop (position + 1) tape
 
 addCommand :: Computer -> [ParameterMode] -> Computer
-addCommand (Computer tape input head output) pModes =
-  Computer tape' input (head + 4) output
+addCommand (Computer tape input phead output) pModes =
+  Computer tape' input (phead + 4) output
   where
-    (p1, p2, before, after) = preprocessorAddMul tape pModes head
-    tape' = before ++ [p1 + p2] ++ after
+    [p1, p2] = resolveValues tape pModes phead 2
+    destination = tape !! (phead + 3)
+    tape' = replaceRegister tape destination (p1 + p2)
 
 mulCommand :: Computer -> [ParameterMode] -> Computer
-mulCommand (Computer tape input head output) pModes =
-  Computer tape' input (head + 4) output
+mulCommand (Computer tape input phead output) pModes =
+  Computer tape' input (phead + 4) output
   where
-    (p1, p2, before, after) = preprocessorAddMul tape pModes head
-    tape' = before ++ [p1 * p2] ++ after
+    [p1, p2] = resolveValues tape pModes phead 2
+    destination = tape !! (phead + 3)
+    tape' = replaceRegister tape destination (p1 * p2)
+
+inputCommand :: Computer -> [ParameterMode] -> Computer
+inputCommand (Computer tape input phead output) pModes =
+  Computer tape' input (phead + 2) output
+  where
+    destination = tape !! (phead + 1)
+    tape' = replaceRegister tape destination (head input)
+
+outputCommand :: Computer -> [ParameterMode] -> Computer
+outputCommand (Computer tape input phead output) pModes =
+  Computer tape input (phead + 2) output'
+  where
+    output' = output ++ [resolveValue tape (Pointer, tape !! (phead + 1))]
 
 execute :: Computer -> Computer
-execute (Computer tape input head output)
-  | op == 1 = execute $ addCommand (Computer tape input head output) pmodes
-  | op == 2 = execute $ mulCommand (Computer tape input head output) pmodes
-  | op == 99 = Computer tape input head output
-  | otherwise = error "Unknown operator"
+execute (Computer tape input phead output)
+  | op == 1 = execute $ addCommand (Computer tape input phead output) pmodes
+  | op == 2 = execute $ mulCommand (Computer tape input phead output) pmodes
+  | op == 3 = execute $ inputCommand (Computer tape input phead output) pmodes
+  | op == 4 = execute $ outputCommand (Computer tape input phead output) pmodes
+  | op == 99 = Computer tape input phead output
+  | otherwise = error ("Unknown operator: " ++ show op)
   where
-    (op, pmodes) = readOpCode $ tape !! head
+    (op, pmodes) = readOpCode $ tape !! phead
 
 valueInRegister :: Computer -> Int -> Int
 valueInRegister (Computer tape _ _ _) pos = tape !! pos
 
 getNounVerb :: Computer -> Tape
 getNounVerb (Computer tape _ _ _) = take 2 $ tail tape
+
+getOutput :: Computer -> OutputTape
+getOutput (Computer _ _ _ output) = output
