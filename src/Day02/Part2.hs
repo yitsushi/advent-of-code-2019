@@ -3,19 +3,16 @@ module Day02.Part2
   ) where
 
 import Control.Monad
-import Day02.Lib
+import Intcode
 
-solve :: String -> String
-solve "No Input" = "No Input Defined!"
-solve input = (join . map show . take 2 . tail) final
+solve input = (join . map show . getNounVerb) final
   where
     tape' = parse input
     possibilities =
-      [ head tape' : noun : verb : drop 3 tape'
+      [ Computer (head tape' : noun : verb : drop 3 tape') [] 0 []
       | noun <- [0 .. 99]
       , verb <- [0 .. 99]
       ]
-    process' tape = process 0 (getOps 0 tape) tape
-    final = head $ dropWhile (validate 19690720) $ map process' possibilities
+    final = (head . dropWhile (validate 19690720) . map execute) possibilities
       where
-        validate value (x:xs) = value /= x
+        validate value box = value /= valueInRegister box 0
