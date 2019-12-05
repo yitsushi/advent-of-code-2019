@@ -76,3 +76,87 @@ spec = do
         (Computer [4, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
         [Pointer, Pointer, Pointer] `shouldBe`
       Computer [4, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 2 [10]
+  describe "jumpIfTrueCommand" $ do
+    it "jump pointer" $
+      jumpIfTrueCommand
+        (Computer [5, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [5, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 40 []
+    it "no jump pointer" $
+      jumpIfTrueCommand
+        (Computer [5, 2, 0, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [5, 2, 0, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 3 []
+    it "jump immediate" $
+      jumpIfTrueCommand
+        (Computer [1105, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Immediate, Immediate, Pointer] `shouldBe`
+      Computer [1105, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 10 []
+    it "no jump immediate" $
+      jumpIfTrueCommand
+        (Computer [1105, 0, 4, 3, 0, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Immediate, Immediate, Pointer] `shouldBe`
+      Computer [1105, 0, 4, 3, 0, 3, 11, 0, 99, 30, 40, 50] [1] 3 []
+  describe "jumpIfFalseCommand" $ do
+    it "jump pointer" $
+      jumpIfFalseCommand
+        (Computer [6, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [6, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 3 []
+    it "no jump pointer" $
+      jumpIfFalseCommand
+        (Computer [6, 2, 0, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [6, 2, 0, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 6 []
+    it "jump immediate" $
+      jumpIfFalseCommand
+        (Computer [1106, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Immediate, Immediate, Pointer] `shouldBe`
+      Computer [1106, 2, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 3 []
+    it "no jump immediate" $
+      jumpIfFalseCommand
+        (Computer [1106, 0, 0, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
+        [Immediate, Immediate, Pointer] `shouldBe`
+      Computer [1106, 0, 0, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 []
+  describe "lessThenCommand" $ do
+    it "writes 0 with pointer" $
+      lessThanCommand
+        (Computer [7, 5, 6, 0, 0, 3, 2] [] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [0, 5, 6, 0, 0, 3, 2] [] 4 []
+    it "writes 1 with pointer" $
+      lessThanCommand
+        (Computer [7, 5, 6, 0, 0, 2, 3] [] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [1, 5, 6, 0, 0, 2, 3] [] 4 []
+    it "writes 1 with immediate" $
+      lessThanCommand
+        (Computer [1107, 5, 6, 1, 0, 2, 3] [] 0 [])
+        [Immediate, Immediate, Pointer] `shouldBe`
+      Computer [1107, 1, 6, 1, 0, 2, 3] [] 4 []
+    it "writes 0 with immediate" $
+      lessThanCommand
+        (Computer [1107, 6, 5, 1, 0, 2, 3] [] 0 [])
+        [Immediate, Immediate, Pointer] `shouldBe`
+      Computer [1107, 0, 5, 1, 0, 2, 3] [] 4 []
+  describe "equalsCommand" $ do
+    it "writes 0 with pointer" $
+      equalsCommand
+        (Computer [7, 5, 6, 0, 0, 2, 3] [] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [0, 5, 6, 0, 0, 2, 3] [] 4 []
+    it "writes 1 with pointer" $
+      equalsCommand
+        (Computer [7, 5, 6, 0, 0, 3, 3] [] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [1, 5, 6, 0, 0, 3, 3] [] 4 []
+    it "writes 1 with immediate" $
+      equalsCommand
+        (Computer [1107, 6, 6, 1, 0, 2, 3] [] 0 [])
+        [Immediate, Immediate, Pointer] `shouldBe`
+      Computer [1107, 1, 6, 1, 0, 2, 3] [] 4 []
+    it "writes 0 with immediate" $
+      equalsCommand
+        (Computer [1107, 5, 6, 1, 0, 2, 3] [] 0 [])
+        [Immediate, Immediate, Pointer] `shouldBe`
+      Computer [1107, 0, 6, 1, 0, 2, 3] [] 4 []

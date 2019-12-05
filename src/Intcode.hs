@@ -77,18 +77,68 @@ outputCommand :: Computer -> [ParameterMode] -> Computer
 outputCommand (Computer tape input phead output) pModes =
   Computer tape input (phead + 2) output'
   where
-    output' = output ++ [resolveValue tape (Pointer, tape !! (phead + 1))]
+    p1 = resolveValues tape pModes phead 1
+    output' = output ++ p1
+
+jumpIfTrueCommand :: Computer -> [ParameterMode] -> Computer
+jumpIfTrueCommand (Computer tape input phead output) pModes =
+  Computer tape input phead' output
+  where
+    [p1, p2] = resolveValues tape pModes phead 2
+    phead' =
+      if p1 /= 0
+        then p2
+        else phead + 3
+
+jumpIfFalseCommand :: Computer -> [ParameterMode] -> Computer
+jumpIfFalseCommand (Computer tape input phead output) pModes =
+  Computer tape input phead' output
+  where
+    [p1, p2] = resolveValues tape pModes phead 2
+    phead' =
+      if p1 == 0
+        then p2
+        else phead + 3
+
+lessThanCommand :: Computer -> [ParameterMode] -> Computer
+lessThanCommand (Computer tape input phead output) pModes =
+  Computer tape' input (phead + 4) output
+  where
+    [p1, p2] = resolveValues tape pModes phead 2
+    value =
+      if p1 < p2
+        then 1
+        else 0
+    destination = tape !! (phead + 3)
+    tape' = replaceRegister tape destination value
+
+equalsCommand :: Computer -> [ParameterMode] -> Computer
+equalsCommand (Computer tape input phead output) pModes =
+  Computer tape' input (phead + 4) output
+  where
+    [p1, p2] = resolveValues tape pModes phead 2
+    value =
+      if p1 == p2
+        then 1
+        else 0
+    destination = tape !! (phead + 3)
+    tape' = replaceRegister tape destination value
 
 execute :: Computer -> Computer
 execute (Computer tape input phead output)
-  | op == 1 = execute $ addCommand (Computer tape input phead output) pmodes
-  | op == 2 = execute $ mulCommand (Computer tape input phead output) pmodes
-  | op == 3 = execute $ inputCommand (Computer tape input phead output) pmodes
-  | op == 4 = execute $ outputCommand (Computer tape input phead output) pmodes
+  | op == 1 = execute $ addCommand comp pmodes
+  | op == 2 = execute $ mulCommand comp pmodes
+  | op == 3 = execute $ inputCommand comp pmodes
+  | op == 4 = execute $ outputCommand comp pmodes
+  | op == 5 = execute $ jumpIfTrueCommand comp pmodes
+  | op == 6 = execute $ jumpIfFalseCommand comp pmodes
+  | op == 7 = execute $ lessThanCommand comp pmodes
+  | op == 8 = execute $ equalsCommand comp pmodes
   | op == 99 = Computer tape input phead output
   | otherwise = error ("Unknown operator: " ++ show op)
   where
     (op, pmodes) = readOpCode $ tape !! phead
+    comp = Computer tape input phead output
 
 valueInRegister :: Computer -> Int -> Int
 valueInRegister (Computer tape _ _ _) pos = tape !! pos

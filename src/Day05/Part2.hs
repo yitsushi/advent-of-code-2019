@@ -1,9 +1,11 @@
 module Day05.Part2
-  (solve
+  ( solve
   ) where
 
-import Day05.Lib
+import Intcode
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = "Day#05::Part2"
+solve input = show $ getOutput $ execute $ Computer tape' [5] 0 []
+  where
+    tape' = parse input
