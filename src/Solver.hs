@@ -8,6 +8,7 @@ import qualified Day03.Main
 import qualified Day04.Main
 import qualified Day05.Main
 import qualified Day06.Main
+import qualified Day07.Main
 import qualified Demo.Main
 import System.Directory
 
@@ -22,6 +23,7 @@ solve "03" = Day03.Main.solve
 solve "04" = Day04.Main.solve
 solve "05" = Day05.Main.solve
 solve "06" = Day06.Main.solve
+solve "07" = Day07.Main.solve
 solve day = notImplementedYet day
 
 -- | Simple function for incpmplete days

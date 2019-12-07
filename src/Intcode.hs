@@ -68,10 +68,11 @@ mulCommand (Computer tape input phead output) pModes =
 
 inputCommand :: Computer -> [ParameterMode] -> Computer
 inputCommand (Computer tape input phead output) pModes =
-  Computer tape' input (phead + 2) output
+  Computer tape' input' (phead + 2) output
   where
     destination = tape !! (phead + 1)
-    tape' = replaceRegister tape destination (head input)
+    (inputValue, input') = (head input, tail input)
+    tape' = replaceRegister tape destination inputValue
 
 outputCommand :: Computer -> [ParameterMode] -> Computer
 outputCommand (Computer tape input phead output) pModes =
@@ -128,6 +129,7 @@ execute :: Computer -> Computer
 execute (Computer tape input phead output)
   | op == 1 = execute $ addCommand comp pmodes
   | op == 2 = execute $ mulCommand comp pmodes
+  | op == 3 && null input = Computer tape input phead output
   | op == 3 = execute $ inputCommand comp pmodes
   | op == 4 = execute $ outputCommand comp pmodes
   | op == 5 = execute $ jumpIfTrueCommand comp pmodes
@@ -148,3 +150,6 @@ getNounVerb (Computer tape _ _ _) = take 2 $ tail tape
 
 getOutput :: Computer -> OutputTape
 getOutput (Computer _ _ _ output) = output
+
+isTerminated :: Computer -> Bool
+isTerminated (Computer tape _ phead _) = 99 == (tape !! phead)

@@ -59,12 +59,17 @@ spec = do
       inputCommand
         (Computer [4, 5, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
         [Pointer, Pointer, Pointer] `shouldBe`
-      Computer [4, 5, 10, 3, 2, 1, 11, 0, 99, 30, 40, 50] [1] 2 []
+      Computer [4, 5, 10, 3, 2, 1, 11, 0, 99, 30, 40, 50] [] 2 []
     it "example #1" $
       inputCommand
         (Computer [4, 3, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1] 0 [])
         [Pointer, Pointer, Pointer] `shouldBe`
-      Computer [4, 3, 10, 1, 2, 3, 11, 0, 99, 30, 40, 50] [1] 2 []
+      Computer [4, 3, 10, 1, 2, 3, 11, 0, 99, 30, 40, 50] [] 2 []
+    it "multiple input value" $
+      inputCommand
+        (Computer [4, 3, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50] [1, 2] 0 [])
+        [Pointer, Pointer, Pointer] `shouldBe`
+      Computer [4, 3, 10, 1, 2, 3, 11, 0, 99, 30, 40, 50] [2] 2 []
   describe "outputCommand" $ do
     it "example #1" $
       outputCommand
