@@ -9,7 +9,7 @@ solve input = (join . map show . getNounVerb) final
   where
     tape' = parse input
     possibilities =
-      [ Computer (head tape' : noun : verb : drop 3 tape') [] 0 []
+      [ Computer (head tape' : noun : verb : drop 3 tape') [] 0 [] 0
       | noun <- [0 .. 99]
       , verb <- [0 .. 99]
       ]
