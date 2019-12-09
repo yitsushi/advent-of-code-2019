@@ -6,6 +6,6 @@ import Intcode
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = show $ last $ getOutput $ execute $ Computer tape' [5] 0 [] 0
+solve input = (show . last . getOutput . execute) (Computer tape [5] 0 [] 0)
   where
-    tape' = parse input
+    tape = parse input
