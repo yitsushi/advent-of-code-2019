@@ -1,6 +1,5 @@
 module Day06.Lib where
 
-import Debug.Trace
 import Lib
 
 type EdgeList = [Edge]
@@ -68,7 +67,6 @@ buildPathTo (Node name ch) target
         then []
         else head options
 
---  | trace (show options) False = []
 data Lists a
   = List [a]
   | ListOfLists [Lists a]

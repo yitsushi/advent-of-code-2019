@@ -13,18 +13,22 @@ type OutputTape = [Int]
 
 type Head = Int
 
+type RelativeBase = Int
+
 data Computer =
-  Computer Tape InputTape Head OutputTape Int
+  Computer Tape InputTape Head OutputTape RelativeBase
   deriving (Show, Eq)
 
 data ParameterMode
   = Pointer
   | Immediate
+  | Relative
   deriving (Show, Eq)
 
 readMode :: Int -> ParameterMode
 readMode 0 = Pointer
 readMode 1 = Immediate
+readMode 2 = Relative
 readMode _ = error "Unknown mode"
 
 readOpCode :: Int -> (Int, [ParameterMode])
@@ -36,41 +40,71 @@ readOpCode op = (opCode, [p1mode, p2mode, p3mode])
     p2mode = calc 1000
     p3mode = calc 10000
 
-resolveValue :: Tape -> (ParameterMode, Int) -> Int
-resolveValue tape (Pointer, value) = tape !! value
-resolveValue tape (Immediate, value) = value
+resolveValue :: Tape -> RelativeBase -> (ParameterMode, Int) -> Int
+resolveValue tape _ (Pointer, value) =
+  valueInRegister (Computer tape [] 0 [] 0) value
+resolveValue tape _ (Immediate, value) = value
+resolveValue tape rbase (Relative, value) =
+  valueInRegister (Computer tape [] 0 [] 0) (rbase + value)
 
-resolveValues :: Tape -> [ParameterMode] -> Head -> Int -> [Int]
-resolveValues tape pModes phead number =
-  map (resolveValue tape) $ zip pModes (take number $ drop (phead + 1) tape)
+resolveValues :: Tape -> RelativeBase -> [ParameterMode] -> Head -> Int -> [Int]
+resolveValues tape rbase pModes phead number =
+  map (resolveValue tape rbase) $
+  zip pModes (take number $ drop (phead + 1) tape)
 
 replaceRegister :: Tape -> Int -> Int -> Tape
-replaceRegister tape position value = before ++ value : after
+replaceRegister tape position value
+  | length tape < (position + 1) =
+    replaceRegister
+      (tape ++ replicate ((position + 1) - length tape) 0)
+      position
+      value
+  | otherwise = before ++ value : after
   where
     before = take position tape
     after = drop (position + 1) tape
+
+valueInRegister :: Computer -> Int -> Int
+valueInRegister (Computer tape _ _ _ _) pos
+  | length tape < pos = 0
+  | otherwise = tape !! pos
+
+calculateDestination :: Computer -> [ParameterMode] -> Int -> Int
+calculateDestination (Computer tape input phead output rbase) pModes shift
+  | pMode == Pointer = pointerValue
+  | pMode == Relative = pointerValue + rbase
+  | otherwise =
+    error
+      ("Destination is should be Pointer or Relative, but it is: " ++ show pMode)
+  where
+    pMode = pModes !! (shift - 1)
+    pointerValue =
+      valueInRegister (Computer tape input phead output rbase) (phead + shift)
 
 addCommand :: Computer -> [ParameterMode] -> Computer
 addCommand (Computer tape input phead output rbase) pModes =
   Computer tape' input (phead + 4) output rbase
   where
-    [p1, p2] = resolveValues tape pModes phead 2
-    destination = tape !! (phead + 3)
+    [p1, p2] = resolveValues tape rbase pModes phead 2
+    destination =
+      calculateDestination (Computer tape input phead output rbase) pModes 3
     tape' = replaceRegister tape destination (p1 + p2)
 
 mulCommand :: Computer -> [ParameterMode] -> Computer
 mulCommand (Computer tape input phead output rbase) pModes =
   Computer tape' input (phead + 4) output rbase
   where
-    [p1, p2] = resolveValues tape pModes phead 2
-    destination = tape !! (phead + 3)
+    [p1, p2] = resolveValues tape rbase pModes phead 2
+    destination =
+      calculateDestination (Computer tape input phead output rbase) pModes 3
     tape' = replaceRegister tape destination (p1 * p2)
 
 inputCommand :: Computer -> [ParameterMode] -> Computer
 inputCommand (Computer tape input phead output rbase) pModes =
   Computer tape' input' (phead + 2) output rbase
   where
-    destination = tape !! (phead + 1)
+    destination =
+      calculateDestination (Computer tape input phead output rbase) pModes 1
     (inputValue, input') = (head input, tail input)
     tape' = replaceRegister tape destination inputValue
 
@@ -78,14 +112,14 @@ outputCommand :: Computer -> [ParameterMode] -> Computer
 outputCommand (Computer tape input phead output rbase) pModes =
   Computer tape input (phead + 2) output' rbase
   where
-    p1 = resolveValues tape pModes phead 1
+    p1 = resolveValues tape rbase pModes phead 1
     output' = output ++ p1
 
 jumpIfTrueCommand :: Computer -> [ParameterMode] -> Computer
 jumpIfTrueCommand (Computer tape input phead output rbase) pModes =
   Computer tape input phead' output rbase
   where
-    [p1, p2] = resolveValues tape pModes phead 2
+    [p1, p2] = resolveValues tape rbase pModes phead 2
     phead' =
       if p1 /= 0
         then p2
@@ -95,7 +129,7 @@ jumpIfFalseCommand :: Computer -> [ParameterMode] -> Computer
 jumpIfFalseCommand (Computer tape input phead output rbase) pModes =
   Computer tape input phead' output rbase
   where
-    [p1, p2] = resolveValues tape pModes phead 2
+    [p1, p2] = resolveValues tape rbase pModes phead 2
     phead' =
       if p1 == 0
         then p2
@@ -105,25 +139,33 @@ lessThanCommand :: Computer -> [ParameterMode] -> Computer
 lessThanCommand (Computer tape input phead output rbase) pModes =
   Computer tape' input (phead + 4) output rbase
   where
-    [p1, p2] = resolveValues tape pModes phead 2
+    [p1, p2] = resolveValues tape rbase pModes phead 2
     value =
       if p1 < p2
         then 1
         else 0
-    destination = tape !! (phead + 3)
+    destination =
+      calculateDestination (Computer tape input phead output rbase) pModes 3
     tape' = replaceRegister tape destination value
 
 equalsCommand :: Computer -> [ParameterMode] -> Computer
 equalsCommand (Computer tape input phead output rbase) pModes =
   Computer tape' input (phead + 4) output rbase
   where
-    [p1, p2] = resolveValues tape pModes phead 2
+    [p1, p2] = resolveValues tape rbase pModes phead 2
     value =
       if p1 == p2
         then 1
         else 0
-    destination = tape !! (phead + 3)
+    destination =
+      calculateDestination (Computer tape input phead output rbase) pModes 3
     tape' = replaceRegister tape destination value
+
+adjustBaseCommand :: Computer -> [ParameterMode] -> Computer
+adjustBaseCommand (Computer tape input phead output rbase) pModes =
+  Computer tape input (phead + 2) output (rbase + p1)
+  where
+    [p1] = resolveValues tape rbase pModes phead 1
 
 execute :: Computer -> Computer
 execute (Computer tape input phead output rbase)
@@ -136,14 +178,12 @@ execute (Computer tape input phead output rbase)
   | op == 6 = execute $ jumpIfFalseCommand comp pmodes
   | op == 7 = execute $ lessThanCommand comp pmodes
   | op == 8 = execute $ equalsCommand comp pmodes
+  | op == 9 = execute $ adjustBaseCommand comp pmodes
   | op == 99 = Computer tape input phead output rbase
   | otherwise = error ("Unknown operator: " ++ show op)
   where
     (op, pmodes) = readOpCode $ tape !! phead
     comp = Computer tape input phead output rbase
-
-valueInRegister :: Computer -> Int -> Int
-valueInRegister (Computer tape _ _ _ _) pos = tape !! pos
 
 getNounVerb :: Computer -> Tape
 getNounVerb (Computer tape _ _ _ _) = take 2 $ tail tape

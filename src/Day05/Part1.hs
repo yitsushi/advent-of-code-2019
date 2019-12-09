@@ -2,7 +2,6 @@ module Day05.Part1
   ( solve
   ) where
 
-import Debug.Trace
 import Intcode
 
 solve :: String -> String
