@@ -186,3 +186,11 @@ getOutput (Computer _ _ _ output _) = output
 
 isTerminated :: Computer -> Bool
 isTerminated (Computer tape _ phead _ _) = 99 == (tape !! phead)
+
+feedInput :: Int -> Computer -> Computer
+feedInput value (Computer tape input phead output rbase) =
+  Computer tape (input ++ [value]) phead output rbase
+
+resetOutput :: Computer -> Computer
+resetOutput (Computer tape input phead _ rbase) =
+  Computer tape input phead [] rbase

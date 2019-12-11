@@ -1,6 +1,7 @@
 module Lib where
 
-import Data.List
+--import Data.List
+import qualified Data.List as L
 
 data Vector
   = IntVector2D (Int, Int)
@@ -45,3 +46,7 @@ splitOn delimiter = foldr f [[]]
     f c l@(x:xs)
       | c == delimiter = [] : l
       | otherwise = (c : x) : xs
+
+partition :: Int -> [a] -> [[a]]
+partition _ [] = []
+partition n xs = take n xs : partition n (drop n xs)

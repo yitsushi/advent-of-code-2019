@@ -2,6 +2,7 @@ module Day08.Lib where
 
 import qualified Data.Char as C
 import qualified Data.List as L
+import Lib
 
 type Dimension = (Int, Int)
 
@@ -10,10 +11,6 @@ type Layer = [[Int]]
 data Image =
   Image Dimension [Layer]
   deriving (Show)
-
-partition :: Int -> [a] -> [[a]]
-partition _ [] = []
-partition n xs = take n xs : partition n (drop n xs)
 
 parseImage :: Dimension -> [Int] -> Image
 parseImage (width, height) content = Image (width, height) layers
