@@ -8,6 +8,26 @@ data Vector
   | IntVector3D (Int, Int, Int)
   deriving (Eq, Ord, Show)
 
+instance Num Vector where
+  (+) (IntVector2D (x1, y1)) (IntVector2D (x2, y2)) =
+    IntVector2D (x1 + x2, y1 + y2)
+  (+) (IntVector3D (x1, y1, z1)) (IntVector3D (x2, y2, z2)) =
+    IntVector3D (x1 + x2, y1 + y2, z1 + z2)
+  (-) (IntVector2D (x1, y1)) (IntVector2D (x2, y2)) =
+    IntVector2D (x1 - x2, y1 - y2)
+  (-) (IntVector3D (x1, y1, z1)) (IntVector3D (x2, y2, z2)) =
+    IntVector3D (x1 - x2, y1 - y2, z1 - z2)
+  fromInteger = undefined
+  (*) = undefined
+  abs = undefined
+  signum = undefined
+
+addVector :: Vector -> Vector -> Vector
+addVector (IntVector2D (x1, y1)) (IntVector2D (x2, y2)) =
+  IntVector2D (x1 + x2, y1 + y2)
+addVector (IntVector3D (x1, y1, z1)) (IntVector3D (x2, y2, z2)) =
+  IntVector3D (x1 + x2, y1 + y2, z1 + z2)
+
 -- | [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry) for a 'Vector'
 --
 -- >>> manhattan $ IntVector2D (14,-20)
