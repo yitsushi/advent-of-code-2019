@@ -1,4 +1,4 @@
-module IntcodeTests.AdjustBaseCommandSpec where
+module IntcodeSpec.AdjustBaseCommandSpec where
 
 import Intcode
 import Test.Hspec

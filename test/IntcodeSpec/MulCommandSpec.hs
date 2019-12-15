@@ -1,4 +1,4 @@
-module IntcodeTests.MulCommandSpec where
+module IntcodeSpec.MulCommandSpec where
 
 import Intcode
 import Test.Hspec

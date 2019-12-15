@@ -1,4 +1,4 @@
-module IntcodeTests.ResolveValueSpec where
+module IntcodeSpec.ResolveValueSpec where
 
 import Intcode
 import Test.Hspec

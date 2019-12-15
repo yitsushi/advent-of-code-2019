@@ -1,4 +1,4 @@
-module IntcodeTests.JumpIfFalseCommandSpec where
+module IntcodeSpec.JumpIfFalseCommandSpec where
 
 import Intcode
 import Test.Hspec

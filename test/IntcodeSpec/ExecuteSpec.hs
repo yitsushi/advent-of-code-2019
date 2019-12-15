@@ -1,4 +1,4 @@
-module IntcodeTests.ExecuteSpec where
+module IntcodeSpec.ExecuteSpec where
 
 import Intcode
 import Test.Hspec

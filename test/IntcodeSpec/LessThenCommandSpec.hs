@@ -1,4 +1,4 @@
-module IntcodeTests.LessThenCommandSpec where
+module IntcodeSpec.LessThenCommandSpec where
 
 import Intcode
 import Test.Hspec

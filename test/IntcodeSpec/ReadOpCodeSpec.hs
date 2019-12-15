@@ -1,4 +1,4 @@
-module IntcodeTests.ReadOpCodeSpec where
+module IntcodeSpec.ReadOpCodeSpec where
 
 import Intcode
 import Test.Hspec

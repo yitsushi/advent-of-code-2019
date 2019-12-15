@@ -1,4 +1,4 @@
-module IntcodeTests.ReplaceRegisterSpec where
+module IntcodeSpec.ReplaceRegisterSpec where
 
 import Intcode
 import Test.Hspec
