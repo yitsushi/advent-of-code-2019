@@ -2,7 +2,6 @@ module Day13.Lib where
 
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
-import Debug.Trace
 import Intcode
 import Lib
 

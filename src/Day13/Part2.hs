@@ -4,7 +4,6 @@ module Day13.Part2
 
 import qualified Data.Map.Strict as Map
 import Day13.Lib
-import Debug.Trace
 import Intcode
 
 controller :: Game -> Int
