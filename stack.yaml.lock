@@ -3,7 +3,21 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    cabal-file:
+      size: 1276
+      sha256: dd12bb5c5af53e9c0c850fcff36019bf7e95f141feb02c1ae30271c44882003c
+    name: walkable-map
+    version: 0.1.0.0
+    git: https://github.com/yitsushi/walkable-map-hs.git
+    pantry-tree:
+      size: 651
+      sha256: 15e2b31eab45be9f2754e4c4b0d918ecc7950a851b675ee58f398b5435d2502b
+    commit: f0d014c7f1bc034c29c63dc9f1e44c3020cb649d
+  original:
+    git: https://github.com/yitsushi/walkable-map-hs.git
+    commit: f0d014c7f1bc034c29c63dc9f1e44c3020cb649d
 snapshots:
 - completed:
     size: 525663

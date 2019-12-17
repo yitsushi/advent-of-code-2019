@@ -27,6 +27,7 @@ dependencies:
 - text
 - containers
 - filepath
+- walkable-map
 
 library:
   source-dirs: src
