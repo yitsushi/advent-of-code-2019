@@ -2,8 +2,8 @@ module Day15.Lib where
 
 import Data.Maybe
 import Data.Point
+import qualified Data.PriorityQueue as PQ
 import qualified Data.WalkableMap as WM
-import Debug.Trace
 import Intcode
 import Lib
 
@@ -154,5 +154,32 @@ exampleMap North =
 exampleMap South =
   WM.fromList (((0, 0), Empty) : [((0, y), Wall) | y <- [1 .. 10]]) Unknown
 
+spreadOxygen :: Area -> Area
+spreadOxygen area = area'
+  where
+    allOxygenZones = WM.findValue OxygenSystem area
+    restrictedArea = area {WM.obstacles = [Wall, OxygenSystem]}
+    edgeZones = concatMap (`WM.neighbors` area) allOxygenZones
+    area' = foldl (\m x -> WM.update x OxygenSystem m) area edgeZones
+
 drawExample :: Direction -> String
 drawExample direction = unlines $ WM.draw (exampleMap direction) tileChar
+
+-- code == Found = Left Nothing
+controller :: Drone -> Either (Maybe Direction) [Point]
+controller drone
+  | not (null (autoPilot drone)) = Right (autoPilot drone)
+  | null nextStep = Left Nothing
+  | length nextStep == 1 =
+    Left (Just (vectorToDirection (head nextStep <-> pos)))
+  | otherwise = Right nextStep
+  where
+    code = responseCode drone
+    area = mapAround drone
+    pos = dronePosition drone
+    posItem = PQ.Item {PQ.location = pos, PQ.score = 0, PQ.extra = [pos]}
+    pathToNext = WM.pathToClosestValue posItem Unknown area
+    nextStep =
+      case pathToNext of
+        Nothing -> []
+        Just item -> reverse $ init $ PQ.extra item
