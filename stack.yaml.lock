@@ -12,12 +12,12 @@ packages:
     version: 0.1.0.0
     git: https://github.com/yitsushi/walkable-map-hs.git
     pantry-tree:
-      size: 651
-      sha256: 15e2b31eab45be9f2754e4c4b0d918ecc7950a851b675ee58f398b5435d2502b
-    commit: f0d014c7f1bc034c29c63dc9f1e44c3020cb649d
+      size: 652
+      sha256: a2aeef894ff38d6c080b4c8d5b27c8fae7d4444fc5cea791532f56d8c15b620c
+    commit: 5269e92d948fe6b1772cefd0254ca4d65bdfe502
   original:
     git: https://github.com/yitsushi/walkable-map-hs.git
-    commit: f0d014c7f1bc034c29c63dc9f1e44c3020cb649d
+    commit: 5269e92d948fe6b1772cefd0254ca4d65bdfe502
 snapshots:
 - completed:
     size: 525663

@@ -42,7 +42,7 @@ packages:
 # extra-deps: []
 extra-deps:
   - git: https://github.com/yitsushi/walkable-map-hs.git
-    commit: f0d014c7f1bc034c29c63dc9f1e44c3020cb649d
+    commit: 5269e92d948fe6b1772cefd0254ca4d65bdfe502
 # Override default flag values for local packages and extra-deps
 # flags: {}
 
