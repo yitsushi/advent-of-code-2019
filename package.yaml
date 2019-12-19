@@ -27,6 +27,7 @@ dependencies:
 - text
 - containers
 - filepath
+- mtl
 - walkable-map
 
 library:
