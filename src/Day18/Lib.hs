@@ -9,7 +9,6 @@ import Data.Maybe
 import Data.Point
 import qualified Data.PriorityQueue as PQ
 import qualified Data.WalkableMap as WM
-
 import Debug.Trace
 
 data Tile
@@ -70,12 +69,9 @@ keys = map (\(k, Key v) -> (k, v)) . M.toList . M.filter match . WM.content
         _ -> False
 
 reachableKeys :: GPS -> [(Point, [Point], Char)]
-reachableKeys GPS {..}
-  | trace (show obstacles) False = undefined
-  | trace (show options) False = undefined
-  | otherwise =
-    map (\(Just PQ.Item {PQ.location = p, PQ.extra = e}, c) -> (p, e, c)) $
-    filter (\(p, _) -> isJust p) $ map walk (keys cave)
+reachableKeys GPS {..} =
+  map (\(Just PQ.Item {PQ.location = p, PQ.extra = e}, c) -> (p, e, c)) $
+  filter (\(p, _) -> isJust p) options
   where
     options = map walk (keys cave)
     walk (pos, ch) =
@@ -87,9 +83,8 @@ reachableKeys GPS {..}
     obstacles = Wall : map Door (map snd (keys cave) L.\\ collectedKeys)
 
 walk :: [Point] -> GPS -> (GPS, Int)
-walk path gps
-  | trace (show (path, position gps)) False = undefined
-  | otherwise = (final, length path)
+walk [] gps = (gps, 0)
+walk path gps = (final, length path)
   where
     final = foldl step gps path
     step gps@GPS {..} next = gps' {position = next}
@@ -110,14 +105,13 @@ walk path gps
 
 planPedometer :: (GPS, Int) -> (GPS, Int)
 planPedometer (gps@GPS {..}, steps)
-  | trace (drawCave cave) False = undefined
-  | trace (show (collectedKeys, reachable, position)) False = undefined
   | null reachable = (gps, steps)
-  | otherwise = planPedometer (final, steps + counter)
+  | otherwise = shortest
   where
-    (final, counter) = walk (reverse $ init path) gps
     reachable = reachableKeys gps
-    (_, path, _) =
-      L.minimumBy
-        (\(_, p, _) (_, p2, _) -> compare (length p) (length p2))
-        reachable
+    options = map mapper reachable
+      where
+        mapper (_, path, _) = planPedometer (gps', steps + counter)
+          where
+            (gps', counter) = walk (reverse $ init path) gps
+    shortest = L.minimumBy (\(_, c1) (_, c2) -> compare c1 c2) options

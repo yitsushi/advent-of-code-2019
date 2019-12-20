@@ -7,9 +7,7 @@ import Debug.Trace
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input
-  | trace (show steps) False = undefined
-  | otherwise = drawCave $ cave gps
+solve input = show steps
   where
     cave' = parseCave input
     start = entrance cave'
