@@ -18,3 +18,14 @@ solveExecutor ::
      IntTitleizer -> Solver -> ExamplesForSolve -> SpecWith (Arg Expectation)
 solveExecutor title solve (i, (input, expected)) =
   it (title i) $ solve input `shouldBe` expected
+
+solveExample ::
+     String
+  -> Solver
+  -> String
+  -> String
+  -> String
+  -> SpecWith (Arg Expectation)
+solveExample day solver title file expected = do
+  content <- runIO $ loadFixture day file
+  it title $ solver content `shouldBe` expected
