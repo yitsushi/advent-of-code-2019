@@ -4,7 +4,7 @@ import Data.Maybe
 import Data.Point
 import qualified Data.PriorityQueue as PQ
 import qualified Data.WalkableMap as WM
-import Intcode
+import IntcodeMachine
 import Lib
 
 type Area = WM.WalkableMap Tile
@@ -83,7 +83,7 @@ data Drone =
 type ControllerFunction = (Drone -> Either (Maybe Direction) [Point])
 
 responseCode :: Drone -> ResponseCode
-responseCode = readCode . head . getOutput . droneProgram
+responseCode = readCode . head . output . droneProgram
 
 move :: Drone -> Drone
 move drone = drone'
@@ -127,15 +127,14 @@ executeDrone drone
             Nothing -> (Abort, [])
             Just direction -> (direction, [])
         Right a -> (vectorToDirection (head a <-> dronePosition drone'), tail a)
-    program =
-      execute $ feedInput (directionCode input) $ resetOutput currentState
+    program = boot $ wipeOutput $ feedInput currentState (directionCode input)
     droneNext =
       drone' {droneProgram = program, lastMovement = input, autoPilot = pilot}
 
-newDrone :: Tape -> ControllerFunction -> Drone
+newDrone :: String -> ControllerFunction -> Drone
 newDrone tape controller =
   Drone
-    { droneProgram = execute (Computer tape [1] 0 [] 0)
+    { droneProgram = boot (loadComputer tape [1])
     , droneController = controller
     , mapAround =
         (WM.fromList [((0, 0), Empty)] Unknown) {WM.obstacles = [Wall]}
