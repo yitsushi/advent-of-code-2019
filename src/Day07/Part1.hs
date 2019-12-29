@@ -3,17 +3,14 @@ module Day07.Part1
   ) where
 
 import Data.List
-import Intcode
+import IntcodeMachine
 
 solve :: String -> String
-solve input =
-  (show .
-   maximum .
-   map (head . getOutput . foldl execute' (Computer [] [] 0 [0] 0)) .
-   permutations)
-    [0 .. 4]
+solve input = (show . maximum . map mapper . permutations) [0 .. 4]
   where
+    initial = cleanComputerWithOutput [0]
+    mapper = head . output . foldl execute initial
     tape = parse input
-    execute' :: Computer -> Int -> Computer
-    execute' (Computer _ _ _ output _) sequence =
-      execute $ Computer tape (sequence : output) 0 [] 0
+    execute :: Computer -> Int -> Computer
+    execute computer sequence =
+      boot $ newComputer tape (sequence : output computer)

@@ -5,6 +5,13 @@ module IntcodeMachine
   , loadComputer
   , Status(..)
   , parse
+  , cleanComputer
+  , cleanComputerWithOutput
+  , feedInput
+  , feedInputs
+  , wipeOutput
+  , isTerminated
+  , isWaiting
   ) where
 
 import Control.Monad.State.Lazy
@@ -202,6 +209,19 @@ resolveParam p1 = do
 boot :: Computer -> Computer
 boot = execState execute
 
+feedInput :: Computer -> Int -> Computer
+feedInput computer value = do
+  let currentInput = input computer
+  computer {input = currentInput ++ [value]}
+
+feedInputs :: Computer -> [Int] -> Computer
+feedInputs computer value = do
+  let currentInput = input computer
+  computer {input = currentInput ++ value}
+
+wipeOutput :: Computer -> Computer
+wipeOutput computer = computer {output = []}
+
 newComputer :: Tape -> [Int] -> Computer
 newComputer tape inputs =
   Computer
@@ -217,3 +237,23 @@ loadComputer :: String -> [Int] -> Computer
 loadComputer tapeString inputs = do
   let tape = parse tapeString
   newComputer tape inputs
+
+cleanComputer :: Computer
+cleanComputer = newComputer [] []
+
+cleanComputerWithOutput :: [Int] -> Computer
+cleanComputerWithOutput out =
+  Computer
+    { memory = []
+    , ip = 0
+    , input = []
+    , output = out
+    , relativeBase = 0
+    , status = Normal
+    }
+
+isTerminated :: Computer -> Bool
+isTerminated = (==) Term . status
+
+isWaiting :: Computer -> Bool
+isWaiting = (==) Waiting . status
