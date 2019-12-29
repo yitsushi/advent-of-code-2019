@@ -194,3 +194,8 @@ feedInput value (Computer tape input phead output rbase) =
 resetOutput :: Computer -> Computer
 resetOutput (Computer tape input phead _ rbase) =
   Computer tape input phead [] rbase
+
+loadComputer :: String -> [Int] -> Computer
+loadComputer tapeString inputs = do
+  let tape = parse tapeString
+  Computer tape inputs 0 [] 0
