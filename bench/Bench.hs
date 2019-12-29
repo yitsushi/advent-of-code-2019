@@ -1,8 +1,7 @@
 import Criterion.Main
 
 import qualified Data.List.Split
-import qualified Intcode as OI
-import qualified IntcodeMachine as NI
+import qualified IntcodeMachine as IM
 import qualified Lib
 
 tape :: String
@@ -24,7 +23,5 @@ main =
         ]
     , bgroup
         "Intcode Machine"
-        [ bench "Old" $ whnf OI.execute (OI.loadComputer tape [10])
-        , bench "New" $ whnf NI.boot (NI.loadComputer tape [10])
-        ]
+        [bench "<> 8" $ whnf IM.boot (IM.loadComputer tape [10])]
     ]
