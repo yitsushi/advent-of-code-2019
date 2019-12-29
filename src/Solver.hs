@@ -40,6 +40,7 @@ solve "09" = Day09.Main.solve
 solve "10" = Day10.Main.solve
 solve "11" = Day11.Main.solve
 solve "12" = Day12.Main.solve
+solve "13" = Day13.Main.solve
 solve "14" = Day14.Main.solve
 solve "15" = Day15.Main.solve
 solve "16" = Day16.Main.solve

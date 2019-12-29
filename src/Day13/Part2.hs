@@ -4,7 +4,7 @@ module Day13.Part2
 
 import qualified Data.Map.Strict as Map
 import Day13.Lib
-import Intcode
+import IntcodeMachine
 
 controller :: Game -> Int
 controller game
@@ -21,4 +21,4 @@ solve "No Input" = "No Input Defined!"
 solve input = (show . gameScore . startGame) game
   where
     tape = parse input
-    game = newGame (Computer (2 : tail tape) [] 0 [] 0) controller
+    game = newGame (newComputer (2 : tail tape) []) controller
