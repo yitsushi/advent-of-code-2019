@@ -29,6 +29,7 @@ dependencies:
 - filepath
 - mtl
 - walkable-map
+- unordered-containers
 
 library:
   source-dirs: src

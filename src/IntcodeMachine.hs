@@ -12,12 +12,17 @@ module IntcodeMachine
   , wipeOutput
   , isTerminated
   , isWaiting
+  , readMemory
   ) where
 
 import Control.Monad.State.Lazy
+import qualified Data.HashMap.Strict as HM
+import Data.Maybe
 import Lib
 
 type Tape = [Int]
+
+type Memory = HM.HashMap Int Int
 
 parse :: String -> Tape
 parse = map read . splitOn ','
@@ -30,7 +35,7 @@ data Status
 
 data Computer =
   Computer
-    { memory :: Tape
+    { memory :: Memory
     , ip :: Int
     , input :: Tape
     , output :: Tape
@@ -78,21 +83,14 @@ readAndConsume = do
 readAddress :: Int -> ComputerState Int
 readAddress position = do
   mem <- gets memory
-  if length mem < position
-    then return 0
-    else return (mem !! position)
+  case HM.lookup position mem of
+    Nothing -> return 0
+    Just value -> return value
 
 writeAddress :: Int -> Int -> ComputerState ()
 writeAddress p v = do
   memory <- gets memory
-  let newMemory =
-        if length memory < (p + 1)
-          then do
-            let more = (p + 1) - length memory
-            memory ++ replicate more 0
-          else memory
-  modify $ \comp ->
-    comp {memory = take p newMemory ++ [v] ++ drop (p + 1) newMemory}
+  modify $ \comp -> comp {memory = HM.insert p v memory}
 
 write :: ParameterMode -> Int -> ComputerState ()
 write p v = do
@@ -225,7 +223,7 @@ wipeOutput computer = computer {output = []}
 newComputer :: Tape -> [Int] -> Computer
 newComputer tape inputs =
   Computer
-    { memory = tape
+    { memory = HM.fromList $ zip [0 ..] tape
     , ip = 0
     , input = inputs
     , output = []
@@ -244,13 +242,16 @@ cleanComputer = newComputer [] []
 cleanComputerWithOutput :: [Int] -> Computer
 cleanComputerWithOutput out =
   Computer
-    { memory = []
+    { memory = HM.fromList []
     , ip = 0
     , input = []
     , output = out
     , relativeBase = 0
     , status = Normal
     }
+
+readMemory :: Int -> Computer -> Int
+readMemory addr Computer {memory = mem} = fromMaybe 0 $ HM.lookup addr mem
 
 isTerminated :: Computer -> Bool
 isTerminated = (==) Term . status

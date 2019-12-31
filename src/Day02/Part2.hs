@@ -16,5 +16,5 @@ solve input = (join . map show . getNounVerb) final
       ]
     final = (head . dropWhile (validate 19690720) . map boot) possibilities
       where
-        validate value box = value /= head (memory box)
-    getNounVerb = take 2 . drop 1 . memory
+        validate value box = value /= readMemory 0 box
+    getNounVerb computer = map (`readMemory` computer) [1, 2]
