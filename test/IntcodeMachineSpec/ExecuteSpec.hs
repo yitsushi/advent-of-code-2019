@@ -8,27 +8,27 @@ spec = do
   describe "Day02 Examples" $ do
     it "example #1" $ do
       let final = boot $ loadComputer "1,9,10,3,2,3,11,0,99,30,40,50" []
-      head (memory final) `shouldBe` 3500
+      readMemory 0 final `shouldBe` 3500
       output final `shouldBe` []
       status final `shouldBe` Term
     it "example #2" $ do
       let final = boot $ loadComputer "1,0,0,0,99" []
-      head (memory final) `shouldBe` 2
+      readMemory 0 final `shouldBe` 2
       output final `shouldBe` []
       status final `shouldBe` Term
     it "example #3" $ do
       let final = boot $ loadComputer "2,3,0,3,99" []
-      (memory final !! 3) `shouldBe` 6
+      readMemory 3 final `shouldBe` 6
       output final `shouldBe` []
       status final `shouldBe` Term
     it "example #4" $ do
       let final = boot $ loadComputer "2,4,4,5,99,0" []
-      (memory final !! 5) `shouldBe` 9801
+      readMemory 5 final `shouldBe` 9801
       output final `shouldBe` []
       status final `shouldBe` Term
     it "example #4" $ do
       let final = boot $ loadComputer "1,1,1,4,99,5,6,0,99" []
-      head (memory final) `shouldBe` 30
+      readMemory 0 final `shouldBe` 30
       output final `shouldBe` []
       status final `shouldBe` Term
   describe "Day05 Examples" $ do
