@@ -7,15 +7,16 @@ module Day19.Part2
 import Data.Map.Strict as Map
 import Data.Maybe
 import Day19.Lib
-import Debug.Trace
-import Intcode
+import IntcodeMachine
 
 target :: Int
-target = 100
+target = 99
 
+-- We have to multiply X by 10000 so it's more than 1000 ;)
+-- so we can start from (1000, 1000)
+-- that saves me like 50s
 controller :: BeamDetector -> Maybe (Int, Int)
 controller detector@BeamDetector {..}
-  | trace (show (beamStartAt, lastSector, lx - beamX)) False = undefined
   | isJust beamStartAt &&
       lastSector == Beam && historicalX == Beam && historicalY == Beam = Nothing
   | isJust beamStartAt &&
@@ -23,7 +24,7 @@ controller detector@BeamDetector {..}
     Just (beamX, ly + 1)
   | otherwise = Just (nextX, nextY)
   where
-    (lx, ly) = fromMaybe (-1, -1) bdLastInput
+    (lx, ly) = fromMaybe (1000, 1000) bdLastInput
     (beamX, beamY) = fromMaybe (-1, -1) beamStartAt
     lastSector = sectorAt detector (lx, ly)
     sectorBefore = sectorAt detector (lx - 1, ly)
@@ -40,10 +41,8 @@ controller detector@BeamDetector {..}
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input
-  | trace (unlines $ drawSpace detector) False = undefined
-  | trace (show $ bdLastInput detector) False = undefined
-  | otherwise = (show . length . Map.filter (== Beam)) (bdSpace detector)
+solve input = show ((x - target) * 10000 + (y - target))
   where
     tape = parse input
     detector = executeBeamDetector $ newBeamDetector tape controller
+    Just (x, y) = bdLastInput detector

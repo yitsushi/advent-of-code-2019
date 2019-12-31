@@ -2,7 +2,7 @@ module Day19.Lib where
 
 import qualified Data.Map.Strict as Map
 import Data.Maybe
-import Intcode
+import IntcodeMachine
 import Lib
 
 data Sector
@@ -51,8 +51,8 @@ executeBeamDetector detector@BeamDetector { bdProgram = computer
     hasChangeInY (Just (_, iny)) (Just (_, lasty)) = iny /= lasty
     hasChangeInY _ _ = False
     input = controller detector
-    updateInput (Just (x, y)) = feedInput x . feedInput y
-    computer' = execute $ updateInput input (resetOutput computer)
+    updateInput (Just (x, y)) = (`feedInput` y) . (`feedInput` x)
+    computer' = boot $ wipeOutput $ updateInput input computer
     detector_ =
       if hasChangeInY input (beamStartAt detector)
         then detector {beamStartAt = Nothing}
@@ -69,7 +69,7 @@ parseResponse detector@BeamDetector { bdProgram = computer
                                     } =
   detector {bdSpace = space', beamStartAt = bPoint, originPoint = oPoint}
   where
-    value = readSector $ head $ getOutput computer
+    value = readSector $ head $ output computer
     space' =
       case input of
         Just (x, y) -> Map.insert (x, y) value space
@@ -97,10 +97,10 @@ drawSpace detector@BeamDetector {bdSpace = space} =
     maxy = maximum $ map (snd . fst) list
     width = maxx - minx + 1
 
-newBeamDetector :: Tape -> Controller -> BeamDetector
+newBeamDetector :: [Int] -> Controller -> BeamDetector
 newBeamDetector tape controller =
   BeamDetector
-    { bdProgram = Computer tape [] 0 [] 0
+    { bdProgram = newComputer tape []
     , bdSpace = Map.fromList []
     , bdController = controller
     , bdLastInput = Nothing

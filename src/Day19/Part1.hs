@@ -7,8 +7,7 @@ module Day19.Part1
 import Data.Map.Strict as Map
 import Data.Maybe
 import Day19.Lib
-import Debug.Trace
-import Intcode
+import IntcodeMachine
 
 controller :: BeamDetector -> Maybe (Int, Int)
 controller detector@BeamDetector {..}
@@ -33,9 +32,7 @@ controller detector@BeamDetector {..}
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input
-  | trace (unlines $ drawSpace detector) False = undefined
-  | otherwise = (show . length . Map.filter (== Beam)) (bdSpace detector)
+solve input = (show . length . Map.filter (== Beam)) (bdSpace detector)
   where
     tape = parse input
     detector = executeBeamDetector $ newBeamDetector tape controller
