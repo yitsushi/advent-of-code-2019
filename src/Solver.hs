@@ -1,7 +1,7 @@
 module Solver where
 
-import Control.Monad.IO.Class (liftIO)
-import Data.Text
+import           Control.Monad.IO.Class (liftIO)
+import           Data.Text
 import qualified Day01.Main
 import qualified Day02.Main
 import qualified Day03.Main
@@ -22,33 +22,33 @@ import qualified Day19.Main
 import qualified Day22.Main
 import qualified Day24.Main
 import qualified Demo.Main
-import System.Directory
+import           System.Directory
 
 -- | Router for days
 --
 -- __TODO:__ Make it dynamic somehow?
 solve :: String -> (Int -> String -> String)
 solve "demo" = Demo.Main.solve
-solve "01" = Day01.Main.solve
-solve "02" = Day02.Main.solve
-solve "03" = Day03.Main.solve
-solve "04" = Day04.Main.solve
-solve "05" = Day05.Main.solve
-solve "06" = Day06.Main.solve
-solve "07" = Day07.Main.solve
-solve "08" = Day08.Main.solve
-solve "09" = Day09.Main.solve
-solve "10" = Day10.Main.solve
-solve "11" = Day11.Main.solve
-solve "12" = Day12.Main.solve
-solve "13" = Day13.Main.solve
-solve "14" = Day14.Main.solve
-solve "15" = Day15.Main.solve
-solve "16" = Day16.Main.solve
-solve "19" = Day19.Main.solve
-solve "22" = Day22.Main.solve
-solve "24" = Day24.Main.solve
-solve day = notImplementedYet day
+solve "01"   = Day01.Main.solve
+solve "02"   = Day02.Main.solve
+solve "03"   = Day03.Main.solve
+solve "04"   = Day04.Main.solve
+solve "05"   = Day05.Main.solve
+solve "06"   = Day06.Main.solve
+solve "07"   = Day07.Main.solve
+solve "08"   = Day08.Main.solve
+solve "09"   = Day09.Main.solve
+solve "10"   = Day10.Main.solve
+solve "11"   = Day11.Main.solve
+solve "12"   = Day12.Main.solve
+solve "13"   = Day13.Main.solve
+solve "14"   = Day14.Main.solve
+solve "15"   = Day15.Main.solve
+solve "16"   = Day16.Main.solve
+solve "19"   = Day19.Main.solve
+solve "22"   = Day22.Main.solve
+solve "24"   = Day24.Main.solve
+solve day    = notImplementedYet day
 
 -- | Simple function for incpmplete days
 notImplementedYet :: String -> Int -> String -> String

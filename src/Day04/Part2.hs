@@ -2,7 +2,7 @@ module Day04.Part2
   ( solve
   ) where
 
-import Day04.Lib
+import           Day04.Lib
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"

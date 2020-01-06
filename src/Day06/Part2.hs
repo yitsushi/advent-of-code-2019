@@ -2,7 +2,7 @@ module Day06.Part2
   ( solve
   ) where
 
-import Day06.Lib
+import           Day06.Lib
 
 -- It's a bit tricky, I'll remove the branchpoint,
 -- but I don't remove the initial point from the results

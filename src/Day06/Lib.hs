@@ -1,6 +1,6 @@
 module Day06.Lib where
 
-import Lib
+import           Lib
 
 type EdgeList = [Edge]
 
@@ -34,11 +34,11 @@ childrenOf :: Node -> [Node]
 childrenOf (Node _ x) = x
 
 allSource :: EdgeList -> [Node]
-allSource [] = []
+allSource []            = []
 allSource (Edge a _:xs) = a : allSource xs
 
 allTarget :: EdgeList -> [Node]
-allTarget [] = []
+allTarget []            = []
 allTarget (Edge _ b:xs) = b : allTarget xs
 
 nodesWithoutParent :: EdgeList -> [Node]
@@ -52,7 +52,7 @@ buildTreeFrom list (Node name _) = Node name children
   where
     children = map (buildTreeFrom list . getTarget) $ filter filter' list
       where
-        filter' (Edge (Node name' _) target) = name == name'
+        filter' (Edge (Node name' _) _) = name == name'
     getTarget (Edge _ node) = node
 
 buildPathTo :: Node -> NodeName -> [NodeName]
@@ -72,5 +72,5 @@ data Lists a
   | ListOfLists [Lists a]
 
 flatten :: Lists a -> [a]
-flatten (List xs) = xs
+flatten (List xs)         = xs
 flatten (ListOfLists xss) = concatMap flatten xss

@@ -2,8 +2,8 @@ module Day05.Part1
   ( solve
   ) where
 
-import IntcodeMachine
+import           IntcodeMachine hiding (input)
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = (show . last . output . boot) (loadComputer input [1])
+solve input      = (show . last . output . boot) (loadComputer input [1])

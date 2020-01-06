@@ -2,8 +2,8 @@ module Day02.Part2
   ( solve
   ) where
 
-import Control.Monad
-import IntcodeMachine
+import           Control.Monad
+import           IntcodeMachine hiding (input)
 
 solve :: String -> String
 solve input = (join . map show . getNounVerb) final
