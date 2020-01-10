@@ -2,7 +2,7 @@ module Day13.Lib where
 
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
-import Intcode
+import IntcodeMachine
 import Lib
 
 data Tile
@@ -48,13 +48,12 @@ parseScreen screen (x:y:id:rest) =
   parseScreen (Map.insert (x, y) (tile id) screen) rest
 
 executeGame :: Game -> Game
-executeGame game
-  | isTerminated (gameProgram game) = game
+executeGame game@Game {gameProgram = gp, gameController = controller}
+  | isTerminated gp = game
   | otherwise = executeGame game'
   where
-    currentState = gameProgram game
-    input = gameController game game
-    program = execute $ feedInput input $ resetOutput currentState
+    input = controller game
+    program = boot $ wipeOutput $ feedInput gp input
     game' = parseGameScreen (game {gameProgram = program})
 
 scoreFilter :: Tile -> Bool
@@ -64,9 +63,9 @@ scoreFilter t =
     _ -> False
 
 parseGameScreen :: Game -> Game
-parseGameScreen game = game'
+parseGameScreen game@Game {gameProgram = gp, gameScreen = gs} = game'
   where
-    screen = parseScreen (gameScreen game) (getOutput $ gameProgram game)
+    screen = parseScreen gs (output gp)
     pureScreen = Map.filter (not . scoreFilter) screen
     game' =
       game

@@ -4,7 +4,7 @@ module Day17.Lib where
 
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
-import Intcode
+import IntcodeMachine
 import Lib
 
 data Direction
@@ -82,8 +82,8 @@ executeMachine :: Machine -> Machine
 executeMachine machine@Machine {..} =
   machine {machineProgram = code, machineScreen = screen code}
   where
-    code = execute machineProgram
-    screen = parseScreen . getOutput
+    code = boot machineProgram
+    screen = parseScreen . output
 
 findIntersections :: Screen -> [(Int, Int)]
 findIntersections screen = Map.keys $ Map.filterWithKey isIntersection screen
@@ -99,9 +99,9 @@ findIntersections screen = Map.keys $ Map.filterWithKey isIntersection screen
           , tileAt screen (x, y - 1)
           ]
 
-newMachine :: Tape -> Machine
-newMachine t =
+newMachine :: [Int] -> Machine
+newMachine tape =
   Machine
-    { machineProgram = Computer t [] 0 [] 0
+    { machineProgram = newComputer tape []
     , machineScreen = Map.singleton (0, 0) Empty
     }

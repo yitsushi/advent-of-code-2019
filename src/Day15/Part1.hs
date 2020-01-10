@@ -7,7 +7,6 @@ import qualified Data.PriorityQueue as PQ
 import qualified Data.WalkableMap as WM
 import Day15.Lib
 import Debug.Trace
-import Intcode
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
@@ -15,8 +14,7 @@ solve input
   | trace (unlines $ draw drone) False = undefined
   | otherwise = show $ length realPath
   where
-    tape = parse input
-    drone = executeDrone $ newDrone tape controller
+    drone = executeDrone $ newDrone input controller
     path =
       WM.pathTo
         PQ.Item {PQ.location = (0, 0), PQ.score = 0, PQ.extra = [(0, 0)]}

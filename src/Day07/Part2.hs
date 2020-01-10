@@ -3,23 +3,23 @@ module Day07.Part2
   ) where
 
 import Data.List
-import Intcode
+import IntcodeMachine
 
 cycleExecute :: [Computer] -> [Computer]
-cycleExecute (Computer tape input phead output rbase:rest)
+cycleExecute (computer:rest)
   | all isTerminated (current : rest) = current : rest
   | otherwise = cycleExecute (rest ++ [current])
   where
-    lastOutput = getOutput $ last rest
+    lastOutput = output $ last rest
     nextInput
       | null lastOutput = [0]
       | otherwise = lastOutput
-    nextMachine = Computer tape (input ++ nextInput) phead [] rbase
-    current = execute nextMachine
+    nextMachine = wipeOutput $ feedInputs computer nextInput
+    current = boot nextMachine
 
 solve :: String -> String
 solve input = (show . maximum . map oneCycle . permutations) [5 .. 9]
   where
     tape = parse input
-    engines sequence = [Computer tape [x] 0 [] 0 | x <- sequence]
-    oneCycle = head . getOutput . head . cycleExecute . engines
+    engines sequence = [newComputer tape [x] | x <- sequence]
+    oneCycle = head . output . head . cycleExecute . engines

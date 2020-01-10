@@ -3,7 +3,7 @@ module Day17.Part1
   ) where
 
 import Day17.Lib
-import Intcode
+import IntcodeMachine
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"

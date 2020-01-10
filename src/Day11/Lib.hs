@@ -2,7 +2,7 @@ module Day11.Lib where
 
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe as Maybe
-import Intcode
+import IntcodeMachine
 import Lib
 
 data Color
@@ -66,13 +66,13 @@ paintAtPosition board (location, _) color = Map.insert location color board
 paint :: Robot -> Board -> Computer -> (Robot, Board, Computer)
 paint robot board computer
   | isTerminated computer = (robot', board', computer)
-  | otherwise = paint robot' board' (execute computer')
+  | otherwise = paint robot' board' (boot computer')
   where
-    o@(color:direction:xs) = getOutput computer
+    o@(color:direction:xs) = output computer
     board' = paintAtPosition board robot (inputToColor color)
     robot' = (step . turn direction) robot
     nextInput = colorToInput $ colorAtPosition board' robot'
-    computer' = (resetOutput . feedInput nextInput) computer
+    computer' = (wipeOutput . feedInput computer) nextInput
 
 render :: Board -> [[Color]]
 render board =
