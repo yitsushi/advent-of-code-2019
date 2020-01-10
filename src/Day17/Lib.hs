@@ -3,9 +3,9 @@
 module Day17.Lib where
 
 import qualified Data.Map.Strict as Map
-import qualified Data.Maybe as Maybe
-import IntcodeMachine
-import Lib
+import qualified Data.Maybe      as Maybe
+import           IntcodeMachine
+import           Lib
 
 data Direction
   = North
@@ -26,27 +26,27 @@ tileChar Empty = '.'
 tileChar Scaffold = '#'
 tileChar (Robot a) =
   case a of
-    North -> '^'
-    East -> '>'
-    South -> 'v'
-    West -> '<'
+    North   -> '^'
+    East    -> '>'
+    South   -> 'v'
+    West    -> '<'
     Invalid -> 'X'
 
 readTile :: Int -> Tile
-readTile 46 = Empty
-readTile 35 = Scaffold
-readTile 94 = Robot North
-readTile 62 = Robot East
+readTile 46  = Empty
+readTile 35  = Scaffold
+readTile 94  = Robot North
+readTile 62  = Robot East
 readTile 118 = Robot South
-readTile 60 = Robot West
-readTile 88 = Robot Invalid
+readTile 60  = Robot West
+readTile 88  = Robot Invalid
 
 type Screen = Map.Map (Int, Int) Tile
 
 data Machine =
   Machine
     { machineProgram :: Computer
-    , machineScreen :: Screen
+    , machineScreen  :: Screen
     }
 
 parseScreen :: [Int] -> Screen
@@ -99,9 +99,9 @@ findIntersections screen = Map.keys $ Map.filterWithKey isIntersection screen
           , tileAt screen (x, y - 1)
           ]
 
-newMachine :: [Int] -> Machine
+newMachine :: String -> Machine
 newMachine tape =
   Machine
-    { machineProgram = newComputer tape []
+    { machineProgram = loadComputer tape []
     , machineScreen = Map.singleton (0, 0) Empty
     }

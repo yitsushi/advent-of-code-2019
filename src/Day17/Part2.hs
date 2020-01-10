@@ -2,7 +2,9 @@ module Day17.Part2
   ( solve
   ) where
 
-import Day17.Lib
+import qualified Data.Map.Strict as Map
+import           Day17.Lib
+import           IntcodeMachine
 
 {- Maybe approach
     1. Create a movement sequence based on the path
@@ -23,4 +25,33 @@ import Day17.Lib
 -}
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = "Day#17::Part2"
+solve input = unlines $ renderScreen machine
+  where
+    machine = executeMachine $ newMachine input
+
+extractRobot :: Screen -> ((Int, Int), Direction)
+extractRobot = extract . head . dropWhile catchRobot . Map.toList
+  where
+    catchRobot (_, tile) = case tile of
+      Robot d -> False
+      _       -> True
+    extract (pos, Robot dir) = (pos, dir)
+
+data Movement = Lft | Rght | Forward
+
+screenToSteps :: Screen -> [Movement]
+screenToSteps screen = undefined
+  where
+    path = Map.filter (== Scaffold) screen
+    robot = extractRobot screen
+
+turnOntoPath :: (Int, Int) -> Direction -> (Int, Int) -> Maybe Direction
+turnOntoPath (robotX, robotY) facing (targetX, targetY)
+  | x == 1 = Just South
+  | x == (-1) = Just North
+  | y == 1 = Just East
+  | y == (-1) = Just West
+  | otherwise = Nothing
+  where
+    x = targetX - robotX
+    y = targetY - robotY
