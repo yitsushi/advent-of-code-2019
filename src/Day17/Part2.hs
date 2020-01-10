@@ -32,12 +32,38 @@ solve input = unlines $ renderScreen machine
 extractRobot :: Screen -> ((Int, Int), Direction)
 extractRobot = extract . head . dropWhile catchRobot . Map.toList
   where
-    catchRobot (_, tile) = case tile of
-      Robot d -> False
-      _       -> True
+    catchRobot (_, tile) =
+      case tile of
+        Robot d -> False
+        _       -> True
     extract (pos, Robot dir) = (pos, dir)
 
-data Movement = Lft | Rght | Forward
+data Movement
+  = Lft
+  | Rght
+  | Forward
+
+turnDirection :: Direction -> Movement -> Direction
+turnDirection North Lft   = West
+turnDirection West Lft    = South
+turnDirection South  Lft  = East
+turnDirection East  Lft   = North
+turnDirection South  Rght = West
+turnDirection East  Rght  = South
+turnDirection North Rght  = East
+turnDirection West Rght   = North
+turnDirection dir _       = dir
+
+isValid :: Screen -> (Int, Int) -> Direction -> Bool
+isValid screen (x, y) = check
+  where
+    compare :: Int -> Int -> Bool
+    compare x y = (==) (Just Scaffold) $ Map.lookup (x, y) screen
+    check :: Direction -> Bool
+    check North = compare (x+1) y
+    check South = compare (x-1) y
+    check East  = compare x (y+1)
+    check West  = compare x (y-1)
 
 screenToSteps :: Screen -> [Movement]
 screenToSteps screen = undefined
