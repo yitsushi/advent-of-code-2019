@@ -90,8 +90,8 @@ readAddress position = do
 
 writeAddress :: Int -> Int -> ComputerState ()
 writeAddress p v = do
-  memory <- gets memory
-  modify $ \comp -> comp {memory = HM.insert p v memory}
+  mem <- gets memory
+  modify $ \comp -> comp {memory = HM.insert p v mem}
 
 write :: ParameterMode -> Int -> ComputerState ()
 write p v = do
@@ -146,12 +146,11 @@ execute :: ComputerState ()
 execute = do
   h <- gets ip
   next <- fetchOp <$> readInstruction
-  input <- gets input
-  mem <- gets memory
+  inp <- gets input
   case next of
     Terminate -> modify $ \c -> c {status = Term}
     Input p1 ->
-      if null input
+      if null inp
         then modify (\c -> c {status = Waiting, ip = h})
         else executeCommand (Input p1) *> execute
     op -> executeCommand op *> execute

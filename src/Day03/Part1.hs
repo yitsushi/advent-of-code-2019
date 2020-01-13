@@ -3,8 +3,8 @@ module Day03.Part1
   ) where
 
 import qualified Data.Set
-import Day03.Lib
-import Lib
+import           Day03.Lib
+import           Lib
 
 findCrossroads :: [Data.Set.Set Vector] -> Data.Set.Set Vector
 findCrossroads (aPath:bPath:_) = Data.Set.intersection aPath bPath
