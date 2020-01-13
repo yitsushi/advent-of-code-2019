@@ -13,6 +13,7 @@ module IntcodeMachine
   , isTerminated
   , isWaiting
   , readMemory
+  , writeMemory
   ) where
 
 import           Control.Monad.State.Lazy
@@ -248,6 +249,11 @@ cleanComputerWithOutput out =
     , relativeBase = 0
     , status = Normal
     }
+
+writeMemory :: Int -> Int -> Computer -> Computer
+writeMemory location value computer = computer {memory = newMemory}
+  where
+    newMemory = HM.insert location value (memory computer)
 
 readMemory :: Int -> Computer -> Int
 readMemory addr Computer {memory = mem} = fromMaybe 0 $ HM.lookup addr mem
