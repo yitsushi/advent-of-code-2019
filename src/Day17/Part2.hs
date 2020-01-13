@@ -7,6 +7,24 @@ import           Day17.Lib
 import           Debug.Trace
 import           IntcodeMachine
 
+debugReadExample :: String -> Screen
+debugReadExample d = screen
+  where
+    rows = lines d
+    screen = foldl fr (Map.singleton (0, 0) Empty) $ zip [0 ..] rows
+      where
+        fr s (y, row) = foldl fc s $ zip [0 ..] row
+          where
+            fc s (x, c) = Map.insert (x, y) value s
+              where
+                value
+                  | c == '.' = Empty
+                  | c == '#' = Scaffold
+                  | c == '^' = Robot North
+                  | c == 'v' = Robot South
+                  | c == '>' = Robot East
+                  | c == '<' = Robot West
+
 {- Maybe approach
     1. Create a movement sequence based on the path
     2. Generate all possible init for A
@@ -26,11 +44,16 @@ import           IntcodeMachine
 -}
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = show plan
+solve input = case plan of
+    Just p -> show $ output $ machineProgram $ executeMachine $ clone machine p
+    _      -> "No solution! :("
   where
-    machine = executeMachine $ newMachine input
-    path = screenToSteps $ machineScreen machine
+    machine = newMachine input
+    path = screenToSteps $ machineScreen $ executeMachine machine
     plan = generatePossibleRoutines path
+    clone :: Machine -> InputSequence -> Machine
+    clone ma is = ma{machineProgram = comp}
+      where comp = writeMemory 0 2 $ feedInputs (machineProgram ma) (renderInputSequence is)
 
 --solve input = unlines $ renderScreen machine
 data Movement
@@ -60,7 +83,15 @@ data InputSequence =
     , aSequence :: RoutineSequence
     , bSequence :: RoutineSequence
     , cSequence :: RoutineSequence
-    } deriving (Show)
+    }
+  deriving (Show)
+
+renderInputSequence :: InputSequence -> [Int]
+renderInputSequence InputSequence { routines = r
+                                  , aSequence = a
+                                  , bSequence = b
+                                  , cSequence = c
+                                  } = toCommandSequence r ++ concatMap toCommandSequence [a, b, c]
 
 type RoutineSequence = [RoutineCommand]
 
@@ -89,12 +120,13 @@ toCommandSequence xs = (Data.List.intersperse 44 . map toIntValue) xs ++ [10]
 
 generatePossibleRoutines :: [Movement] -> Maybe InputSequence
 generatePossibleRoutines path
-  | (not . null) allPossibilities = Just (toInputSequence $ head allPossibilities)
+  | (not . null) allPossibilities =
+    Just (toInputSequence $ head allPossibilities)
   | otherwise = Nothing
   where
     allPossibilities = filter filterRoutes $ noRemainders possibleABC
     filterRoutes :: ([Routine], Possibility) -> Bool
-    filterRoutes (r, x) =
+    filterRoutes (r, (a, b, c)) =
       ((\c -> 1 < c && c <= 20) . length . toCommandSequence) r
     toInputSequence :: ([Routine], Possibility) -> InputSequence
     toInputSequence (r, (a, b, c)) =
@@ -104,19 +136,21 @@ generatePossibleRoutines path
         , bSequence = pathToSequence b
         , cSequence = pathToSequence c
         }
-    seq = toCommandSequence . pathToSequence
-    -- 1 < x => because 10 is always at the end
-    gen = filter ((\x -> 1 < x && x <= 20) . length . seq) . inits
+    gen = filter (goodLength . length . pathToSequence) . inits
+      where
+        goodLength x = 0 < x && x <= 20
     possibleA = gen path
-    possibleAB =
-      concatMap (\a -> zip (repeat a) (gen $ drop (length a) path)) possibleA
-    possibleABC =
-      map (\((a, b), c) -> (a, b, c)) $
-      concatMap
-        (\(a, b) -> zip (repeat (a, b)) (gen $ drop (length a + length b) path))
-        possibleAB
+    possibleAB = concatMap build possibleA
+      where
+        build a = zip (repeat a) (gen $ drop (length a) path)
+    possibleABC = map repack $ concatMap build possibleAB
+      where
+        repack ((a, b), c) = (a, b, c)
+        genc a b = gen $ drop (length a + length b) path
+        build (a, b) = zip (repeat (a, b)) (genc a b)
     noRemainders :: [Possibility] -> [([Routine], Possibility)]
-    noRemainders = map unwrap . filter removeNothing . map (\x -> (converted x, x))
+    noRemainders =
+      map unwrap . filter removeNothing . map (\x -> (converted x, x))
       where
         converted = convert path
         removeNothing (r, _) = isJust r
@@ -124,9 +158,12 @@ generatePossibleRoutines path
     convert :: [Movement] -> Possibility -> Maybe [Routine]
     convert [] _ = Just []
     convert p (a, b, c)
-      | a == aLenList = (++) <$> Just [A] <*> convert (drop (length a) p) (a, b, c)
-      | b == bLenList = (++) <$> Just [B] <*> convert (drop (length b) p) (a, b, c)
-      | c == cLenList = (++) <$> Just [C] <*> convert (drop (length c) p) (a, b, c)
+      | a == aLenList =
+        (++) <$> Just [A] <*> convert (drop (length a) p) (a, b, c)
+      | b == bLenList =
+        (++) <$> Just [B] <*> convert (drop (length b) p) (a, b, c)
+      | c == cLenList =
+        (++) <$> Just [C] <*> convert (drop (length c) p) (a, b, c)
       | otherwise = Nothing
       where
         aLenList = take (length a) p

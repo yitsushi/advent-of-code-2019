@@ -13,12 +13,13 @@ module IntcodeMachine
   , isTerminated
   , isWaiting
   , readMemory
+  , writeMemory
   ) where
 
-import Control.Monad.State.Lazy
-import qualified Data.HashMap.Strict as HM
-import Data.Maybe
-import Lib
+import           Control.Monad.State.Lazy
+import qualified Data.HashMap.Strict      as HM
+import           Data.Maybe
+import           Lib
 
 type Tape = [Int]
 
@@ -35,12 +36,12 @@ data Status
 
 data Computer =
   Computer
-    { memory :: Memory
-    , ip :: Int
-    , input :: Tape
-    , output :: Tape
+    { memory       :: Memory
+    , ip           :: Int
+    , input        :: Tape
+    , output       :: Tape
     , relativeBase :: Int
-    , status :: Status
+    , status       :: Status
     }
 
 type ComputerState = State Computer
@@ -84,7 +85,7 @@ readAddress :: Int -> ComputerState Int
 readAddress position = do
   mem <- gets memory
   case HM.lookup position mem of
-    Nothing -> return 0
+    Nothing    -> return 0
     Just value -> return value
 
 writeAddress :: Int -> Int -> ComputerState ()
@@ -97,24 +98,24 @@ write p v = do
   offset <- gets relativeBase
   addr <- readAndConsume
   case p of
-    Pointer -> writeAddress addr v
+    Pointer   -> writeAddress addr v
     Immediate -> error "Not supported operation: Immediate write"
-    Relative -> writeAddress (addr + offset) v
+    Relative  -> writeAddress (addr + offset) v
 
 fetchOp :: Int -> Op
 fetchOp value =
   case code of
-    1 -> Add (p1, p2, p3)
-    2 -> Mul (p1, p2, p3)
-    3 -> Input p1
-    4 -> Output p1
-    5 -> JumpIfTrue (p1, p2)
-    6 -> JumpIfFalse (p1, p2)
-    7 -> Less (p1, p2, p3)
-    8 -> Equal (p1, p2, p3)
-    9 -> SetBase p1
+    1  -> Add (p1, p2, p3)
+    2  -> Mul (p1, p2, p3)
+    3  -> Input p1
+    4  -> Output p1
+    5  -> JumpIfTrue (p1, p2)
+    6  -> JumpIfFalse (p1, p2)
+    7  -> Less (p1, p2, p3)
+    8  -> Equal (p1, p2, p3)
+    9  -> SetBase p1
     99 -> Terminate
-    e -> error $ "Unknown OpCode" ++ show e
+    e  -> error $ "Unknown OpCode" ++ show e
   where
     code = value `mod` 100
     calc = readMode . flip mod 10 . div value
@@ -136,9 +137,9 @@ tell p = do
   pv <- readAndConsume
   v <-
     case p of
-      Pointer -> readAddress pv
+      Pointer   -> readAddress pv
       Immediate -> return pv
-      Relative -> readAddress (pv + offset)
+      Relative  -> readAddress (pv + offset)
   modify $ \c -> c {output = out ++ [v]}
 
 execute :: ComputerState ()
@@ -200,9 +201,9 @@ resolveParam p1 = do
   offset <- gets relativeBase
   v <- readAndConsume
   case p1 of
-    Pointer -> readAddress v
+    Pointer   -> readAddress v
     Immediate -> return v
-    Relative -> readAddress (v + offset)
+    Relative  -> readAddress (v + offset)
 
 boot :: Computer -> Computer
 boot = execState execute
@@ -249,6 +250,11 @@ cleanComputerWithOutput out =
     , relativeBase = 0
     , status = Normal
     }
+
+writeMemory :: Int -> Int -> Computer -> Computer
+writeMemory location value computer = computer {memory = newMemory}
+  where
+    newMemory = HM.insert location value (memory computer)
 
 readMemory :: Int -> Computer -> Int
 readMemory addr Computer {memory = mem} = fromMaybe 0 $ HM.lookup addr mem
