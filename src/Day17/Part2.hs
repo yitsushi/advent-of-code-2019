@@ -1,5 +1,6 @@
 module Day17.Part2 where
 
+import           Data.Char
 import           Data.List
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
@@ -25,6 +26,10 @@ debugReadExample d = screen
                   | c == '>' = Robot East
                   | c == '<' = Robot West
 
+{- I think I know what's the problem :/
+    I assume the solution can contain programs
+    that walks off the scaffold path, but still
+    visits all of them -}
 {- Maybe approach
     1. Create a movement sequence based on the path
     2. Generate all possible init for A
@@ -44,16 +49,20 @@ debugReadExample d = screen
 -}
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = case plan of
-    Just p -> show $ output $ machineProgram $ executeMachine $ clone machine p
+solve input =
+  case plan of
+    Just p -> unlines $ renderScreen $ executeMachine $ clone machine p
     _      -> "No solution! :("
   where
     machine = newMachine input
     path = screenToSteps $ machineScreen $ executeMachine machine
     plan = generatePossibleRoutines path
     clone :: Machine -> InputSequence -> Machine
-    clone ma is = ma{machineProgram = comp}
-      where comp = writeMemory 0 2 $ feedInputs (machineProgram ma) (renderInputSequence is)
+    clone ma is = ma {machineProgram = comp}
+      where
+        comp =
+          writeMemory 0 2 $
+          feedInputs (machineProgram ma) (renderInputSequence is)
 
 --solve input = unlines $ renderScreen machine
 data Movement
@@ -63,7 +72,7 @@ data Movement
   deriving (Eq)
 
 class CommandSequenceElem a where
-  toIntValue :: a -> Int
+  toIntValues :: a -> [Int]
 
 data RoutineCommand
   = L
@@ -91,32 +100,32 @@ renderInputSequence InputSequence { routines = r
                                   , aSequence = a
                                   , bSequence = b
                                   , cSequence = c
-                                  } = toCommandSequence r ++ concatMap toCommandSequence [a, b, c]
+                                  } =
+  toCommandSequence r ++ concatMap toCommandSequence [a, b, c] ++ [ord 'n']
 
 type RoutineSequence = [RoutineCommand]
 
 instance CommandSequenceElem RoutineCommand where
-  toIntValue L                = 76
-  toIntValue R                = 82
-  toIntValue (ForwardValue v) = 48 + v
+  toIntValues L                = [76]
+  toIntValues R                = [82]
+  toIntValues (ForwardValue v) = map ord (show v)
 
 instance CommandSequenceElem Routine where
-  toIntValue A = 65
-  toIntValue B = 66
-  toIntValue C = 67
+  toIntValues A = [65]
+  toIntValues B = [66]
+  toIntValues C = [67]
 
 pathToSequence :: [Movement] -> RoutineSequence
 pathToSequence = map convert . group
   where
-    convert [Lft]     = L
-    convert [Rght]    = R
-    convert [Forward] = ForwardValue 1
-    convert xs        = ForwardValue (length xs)
+    convert [Lft]  = L
+    convert [Rght] = R
+    convert xs     = ForwardValue (length xs)
 
 type Possibility = ([Movement], [Movement], [Movement])
 
 toCommandSequence :: CommandSequenceElem a => [a] -> [Int]
-toCommandSequence xs = (Data.List.intersperse 44 . map toIntValue) xs ++ [10]
+toCommandSequence xs = (Data.List.intercalate [44] . map toIntValues) xs ++ [10]
 
 generatePossibleRoutines :: [Movement] -> Maybe InputSequence
 generatePossibleRoutines path
@@ -127,7 +136,7 @@ generatePossibleRoutines path
     allPossibilities = filter filterRoutes $ noRemainders possibleABC
     filterRoutes :: ([Routine], Possibility) -> Bool
     filterRoutes (r, (a, b, c)) =
-      ((\c -> 1 < c && c <= 20) . length . toCommandSequence) r
+      ((\c -> 1 < c && c <= 21) . length . toCommandSequence) r
     toInputSequence :: ([Routine], Possibility) -> InputSequence
     toInputSequence (r, (a, b, c)) =
       InputSequence
@@ -136,9 +145,10 @@ generatePossibleRoutines path
         , bSequence = pathToSequence b
         , cSequence = pathToSequence c
         }
-    gen = filter (goodLength . length . pathToSequence) . inits
+    gen =
+      filter (goodLength . length . toCommandSequence . pathToSequence) . inits
       where
-        goodLength x = 0 < x && x <= 20
+        goodLength x = 1 < x && x <= 21
     possibleA = gen path
     possibleAB = concatMap build possibleA
       where
@@ -152,7 +162,13 @@ generatePossibleRoutines path
     noRemainders =
       map unwrap . filter removeNothing . map (\x -> (converted x, x))
       where
-        converted = convert path
+        converted (a, b, c)
+          | trace (show (aCom, bCom, cCom)) False = undefined
+          | otherwise = convert path (a, b, c)
+          where
+            aCom = pathToSequence a
+            bCom = pathToSequence b
+            cCom = pathToSequence c
         removeNothing (r, _) = isJust r
         unwrap (Just r, p) = (r, p)
     convert :: [Movement] -> Possibility -> Maybe [Routine]

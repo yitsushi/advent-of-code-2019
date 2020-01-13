@@ -2,6 +2,7 @@
 
 module Day17.Lib where
 
+import           Data.Char
 import qualified Data.Map.Strict as Map
 import qualified Data.Maybe      as Maybe
 import           IntcodeMachine
@@ -19,11 +20,13 @@ data Tile
   = Empty
   | Scaffold
   | Robot Direction
+  | TextValue Char
   deriving (Show, Eq)
 
 tileChar :: Tile -> Char
 tileChar Empty = '.'
 tileChar Scaffold = '#'
+tileChar (TextValue v) = v
 tileChar (Robot a) =
   case a of
     North   -> '^'
@@ -40,7 +43,7 @@ readTile 62  = Robot East
 readTile 118 = Robot South
 readTile 60  = Robot West
 readTile 88  = Robot Invalid
-
+readTile c   = TextValue (chr c)
 type Screen = Map.Map (Int, Int) Tile
 
 data Machine =

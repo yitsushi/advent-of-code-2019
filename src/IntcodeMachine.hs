@@ -19,6 +19,7 @@ module IntcodeMachine
 import           Control.Monad.State.Lazy
 import qualified Data.HashMap.Strict      as HM
 import           Data.Maybe
+import           Debug.Trace
 import           Lib
 
 type Tape = [Int]
@@ -128,7 +129,7 @@ ask = do
   inp <- gets input
   let (x, xs) = (head inp, tail inp)
   modify $ \c -> c {input = xs}
-  return x
+  trace (show x) return x
 
 tell :: ParameterMode -> ComputerState ()
 tell p = do
