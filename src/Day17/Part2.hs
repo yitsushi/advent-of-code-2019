@@ -1,9 +1,10 @@
-module Day17.Part2
-  ( solve
-  ) where
+module Day17.Part2 where
 
+import           Data.List
 import qualified Data.Map.Strict as Map
+import           Data.Maybe
 import           Day17.Lib
+import           Debug.Trace
 import           IntcodeMachine
 
 {- Maybe approach
@@ -25,11 +26,112 @@ import           IntcodeMachine
 -}
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = show path
---solve input = unlines $ renderScreen machine
+solve input = show plan
   where
     machine = executeMachine $ newMachine input
     path = screenToSteps $ machineScreen machine
+    plan = generatePossibleRoutines path
+
+--solve input = unlines $ renderScreen machine
+data Movement
+  = Lft
+  | Rght
+  | Forward
+  deriving (Eq)
+
+class CommandSequenceElem a where
+  toIntValue :: a -> Int
+
+data RoutineCommand
+  = L
+  | R
+  | ForwardValue Int
+  deriving (Show)
+
+data Routine
+  = A
+  | B
+  | C
+  deriving (Show)
+
+data InputSequence =
+  InputSequence
+    { routines  :: [Routine]
+    , aSequence :: RoutineSequence
+    , bSequence :: RoutineSequence
+    , cSequence :: RoutineSequence
+    } deriving (Show)
+
+type RoutineSequence = [RoutineCommand]
+
+instance CommandSequenceElem RoutineCommand where
+  toIntValue L                = 76
+  toIntValue R                = 82
+  toIntValue (ForwardValue v) = 48 + v
+
+instance CommandSequenceElem Routine where
+  toIntValue A = 65
+  toIntValue B = 66
+  toIntValue C = 67
+
+pathToSequence :: [Movement] -> RoutineSequence
+pathToSequence = map convert . group
+  where
+    convert [Lft]     = L
+    convert [Rght]    = R
+    convert [Forward] = ForwardValue 1
+    convert xs        = ForwardValue (length xs)
+
+type Possibility = ([Movement], [Movement], [Movement])
+
+toCommandSequence :: CommandSequenceElem a => [a] -> [Int]
+toCommandSequence xs = (Data.List.intersperse 44 . map toIntValue) xs ++ [10]
+
+generatePossibleRoutines :: [Movement] -> Maybe InputSequence
+generatePossibleRoutines path
+  | (not . null) allPossibilities = Just (toInputSequence $ head allPossibilities)
+  | otherwise = Nothing
+  where
+    allPossibilities = filter filterRoutes $ noRemainders possibleABC
+    filterRoutes :: ([Routine], Possibility) -> Bool
+    filterRoutes (r, x) =
+      ((\c -> 1 < c && c <= 20) . length . toCommandSequence) r
+    toInputSequence :: ([Routine], Possibility) -> InputSequence
+    toInputSequence (r, (a, b, c)) =
+      InputSequence
+        { routines = r
+        , aSequence = pathToSequence a
+        , bSequence = pathToSequence b
+        , cSequence = pathToSequence c
+        }
+    seq = toCommandSequence . pathToSequence
+    -- 1 < x => because 10 is always at the end
+    gen = filter ((\x -> 1 < x && x <= 20) . length . seq) . inits
+    possibleA = gen path
+    possibleAB =
+      concatMap (\a -> zip (repeat a) (gen $ drop (length a) path)) possibleA
+    possibleABC =
+      map (\((a, b), c) -> (a, b, c)) $
+      concatMap
+        (\(a, b) -> zip (repeat (a, b)) (gen $ drop (length a + length b) path))
+        possibleAB
+    noRemainders :: [Possibility] -> [([Routine], Possibility)]
+    noRemainders = map unwrap . filter removeNothing . map (\x -> (converted x, x))
+      where
+        converted = convert path
+        removeNothing (r, _) = isJust r
+        unwrap (Just r, p) = (r, p)
+    convert :: [Movement] -> Possibility -> Maybe [Routine]
+    convert [] _ = Just []
+    convert p (a, b, c)
+      | a == aLenList = (++) <$> Just [A] <*> convert (drop (length a) p) (a, b, c)
+      | b == bLenList = (++) <$> Just [B] <*> convert (drop (length b) p) (a, b, c)
+      | c == cLenList = (++) <$> Just [C] <*> convert (drop (length c) p) (a, b, c)
+      | otherwise = Nothing
+      where
+        aLenList = take (length a) p
+        bLenList = take (length b) p
+        cLenList = take (length c) p
 
 extractRobot :: Screen -> ((Int, Int), Direction)
 extractRobot = extract . head . dropWhile catchRobot . Map.toList
@@ -39,11 +141,6 @@ extractRobot = extract . head . dropWhile catchRobot . Map.toList
         Robot d -> False
         _       -> True
     extract (pos, Robot dir) = (pos, dir)
-
-data Movement
-  = Lft
-  | Rght
-  | Forward
 
 instance Show Movement where
   show Lft     = "L"
