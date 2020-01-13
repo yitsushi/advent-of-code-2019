@@ -29,7 +29,12 @@ debugReadExample d = screen
 {- I think I know what's the problem :/
     I assume the solution can contain programs
     that walks off the scaffold path, but still
-    visits all of them -}
+    visits all of them
+
+    Nope... My code does not handle if the solution
+    starts with AABC or ABBC or ABCC or any
+    repeated pattern.
+-}
 {- Maybe approach
     1. Create a movement sequence based on the path
     2. Generate all possible init for A
