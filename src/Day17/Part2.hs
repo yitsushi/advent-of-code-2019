@@ -5,26 +5,7 @@ import           Data.List
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
 import           Day17.Lib
-import           Debug.Trace
 import           IntcodeMachine
-
-debugReadExample :: String -> Screen
-debugReadExample d = screen
-  where
-    rows = lines d
-    screen = foldl fr (Map.singleton (0, 0) Empty) $ zip [0 ..] rows
-      where
-        fr s (y, row) = foldl fc s $ zip [0 ..] row
-          where
-            fc s (x, c) = Map.insert (x, y) value s
-              where
-                value
-                  | c == '.' = Empty
-                  | c == '#' = Scaffold
-                  | c == '^' = Robot North
-                  | c == 'v' = Robot South
-                  | c == '>' = Robot East
-                  | c == '<' = Robot West
 
 {- I think I know what's the problem :/
     I assume the solution can contain programs
@@ -34,6 +15,8 @@ debugReadExample d = screen
     Nope... My code does not handle if the solution
     starts with AABC or ABBC or ABCC or any
     repeated pattern.
+
+    Yep, that was the problem XD
 -}
 {- Maybe approach
     1. Create a movement sequence based on the path
@@ -56,12 +39,13 @@ solve :: String -> String
 solve "No Input" = "No Input Defined!"
 solve input =
   case plan of
-    Just p -> unlines $ renderScreen $ executeMachine $ clone machine p
+    Just p -> show $ extractScore $ executeMachine $ clone machine p
     _      -> "No solution! :("
   where
     machine = newMachine input
     path = screenToSteps $ machineScreen $ executeMachine machine
     plan = generatePossibleRoutines path
+    extractScore = last . output . machineProgram
     clone :: Machine -> InputSequence -> Machine
     clone ma is = ma {machineProgram = comp}
       where
@@ -106,7 +90,7 @@ renderInputSequence InputSequence { routines = r
                                   , bSequence = b
                                   , cSequence = c
                                   } =
-  toCommandSequence r ++ concatMap toCommandSequence [a, b, c] ++ [ord 'n']
+  toCommandSequence r ++ concatMap toCommandSequence [a, b, c] ++ [ord 'n', 10]
 
 type RoutineSequence = [RoutineCommand]
 
@@ -154,26 +138,25 @@ generatePossibleRoutines path
       filter (goodLength . length . toCommandSequence . pathToSequence) . inits
       where
         goodLength x = 1 < x && x <= 21
+    dropPart a = drop (length a)
     possibleA = gen path
-    possibleAB = concatMap build possibleA
+    possibleAB = concatMap (build path) possibleA
       where
-        build a = zip (repeat a) (gen $ drop (length a) path)
-    possibleABC = map repack $ concatMap build possibleAB
+        build p a
+          | take (length a) p == a = build (dropPart a p) a
+          | otherwise = zip (repeat a) (gen p)
+    possibleABC = map repack $ concatMap (build path) possibleAB
       where
         repack ((a, b), c) = (a, b, c)
-        genc a b = gen $ drop (length a + length b) path
-        build (a, b) = zip (repeat (a, b)) (genc a b)
+        build p (a, b)
+          | take (length a) p == a = build (dropPart a p) (a, b)
+          | take (length b) p == b = build (dropPart b p) (a, b)
+          | otherwise = zip (repeat (a, b)) (gen p)
     noRemainders :: [Possibility] -> [([Routine], Possibility)]
     noRemainders =
       map unwrap . filter removeNothing . map (\x -> (converted x, x))
       where
-        converted (a, b, c)
-          | trace (show (aCom, bCom, cCom)) False = undefined
-          | otherwise = convert path (a, b, c)
-          where
-            aCom = pathToSequence a
-            bCom = pathToSequence b
-            cCom = pathToSequence c
+        converted = convert path
         removeNothing (r, _) = isJust r
         unwrap (Just r, p) = (r, p)
     convert :: [Movement] -> Possibility -> Maybe [Routine]
