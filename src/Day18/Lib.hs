@@ -6,6 +6,7 @@ import           Data.Char
 import qualified Data.List          as L
 import qualified Data.Map.Strict    as M
 import           Data.Maybe
+import           Data.Monoid
 import           Data.Point
 import qualified Data.PriorityQueue as PQ
 import qualified Data.WalkableMap   as WM
@@ -118,9 +119,29 @@ planPedometer (gps@GPS {..}, steps)
     shortest = L.minimumBy (\(_, c1) (_, c2) -> compare c1 c2) options
 
 routeInCache :: Point -> Point -> GPS -> Maybe [Point]
-routeInCache from to GPS {cachedRoutes = cr} = M.lookup (from, to) cr
+routeInCache from to GPS {cachedRoutes = cr} =
+  getFirst (First normal <> First rev)
+  where
+    normal = M.lookup (from, to) cr
+    rev = M.lookup (to, from) cr
 
 buildCache :: GPS -> GPS
-buildCache gps = undefined
+buildCache gps = gps {cachedRoutes = cache}
   where
-    allKeys = keys (cave gps)
+    allKeys = keys (cave gps) ++ [(position gps, '@')]
+    allPairs = [(x, y) | (x:ys) <- L.tails allKeys, y <- ys]
+    cache = foldl build (cachedRoutes gps) allPairs
+      where
+        build c ((from, _), (to, _)) =
+          M.insert (from, to) (path $ route from to) c
+          where
+            path x =
+              case x of
+                Nothing                  -> []
+                Just PQ.Item {extra = l} -> l
+    cave' = cave gps
+    route from to =
+      WM.pathTo
+        PQ.Item {PQ.location = from, PQ.score = 0, PQ.extra = [from]}
+        to
+        cave' {WM.obstacles = [Wall]}
