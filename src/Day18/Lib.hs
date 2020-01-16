@@ -12,6 +12,20 @@ import qualified Data.PriorityQueue as PQ
 import qualified Data.WalkableMap   as WM
 import           Debug.Trace
 
+debugger :: GPS
+debugger = do
+  let input =
+        "########################\n#...............b.C.D.f#\n#.######################\n#.....@.a.B.c.d.A.e.F.g#\n########################"
+  let c' = parseCave input
+  let gps =
+        GPS
+          { cave = c'
+          , collectedKeys = []
+          , position = entrance c'
+          , cachedRoutes = M.fromList []
+          }
+  buildCache gps
+
 data Tile
   = Empty
   | Wall
@@ -105,6 +119,7 @@ walk path gps = (final, length path)
                 }
             _ -> gps
 
+{-
 planPedometer :: (GPS, Int) -> (GPS, Int)
 planPedometer (gps@GPS {..}, steps)
   | null reachable = (gps, steps)
@@ -117,6 +132,11 @@ planPedometer (gps@GPS {..}, steps)
           where
             (gps', counter) = walk (reverse $ init path) gps
     shortest = L.minimumBy (\(_, c1) (_, c2) -> compare c1 c2) options
+-}
+planPedometer :: (GPS, Int) -> (GPS, Int)
+planPedometer (gps@GPS {..}, steps) = (gps, steps)
+  where
+    options = remainingRoutes gps
 
 routeInCache :: Point -> Point -> GPS -> Maybe [Point]
 routeInCache from to GPS {cachedRoutes = cr} =
@@ -124,6 +144,25 @@ routeInCache from to GPS {cachedRoutes = cr} =
   where
     normal = M.lookup (from, to) cr
     rev = M.lookup (to, from) cr
+
+hasKeyFor :: Tile -> GPS -> Bool
+hasKeyFor (Door c) gps = c `elem` collectedKeys gps
+hasKeyFor Wall _       = False
+hasKeyFor _ _          = True
+
+remainingRoutes :: GPS -> [[Point]]
+remainingRoutes gps = allRoutes remainingKeys
+  where
+    remainingKeys =
+      [(p, c) | (p, c) <- keys (cave gps), c `notElem` collectedKeys gps]
+    isRouteWithoutObstacle :: [Point] -> Bool
+    isRouteWithoutObstacle = all isOpen
+      where
+        isOpen p = hasKeyFor (WM.valueAt (cave gps) p) gps
+    allRoutes :: [(Point, Char)] -> [[Point]]
+    allRoutes keyList =
+      filter isRouteWithoutObstacle $
+      catMaybes [routeInCache (position gps) p gps | (p, c) <- keyList]
 
 buildCache :: GPS -> GPS
 buildCache gps = gps {cachedRoutes = cache}
