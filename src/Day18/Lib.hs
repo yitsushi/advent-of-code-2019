@@ -2,14 +2,14 @@
 
 module Day18.Lib where
 
-import Data.Char
-import qualified Data.List as L
-import qualified Data.Map.Strict as M
-import Data.Maybe
-import Data.Point
+import           Data.Char
+import qualified Data.List          as L
+import qualified Data.Map.Strict    as M
+import           Data.Maybe
+import           Data.Point
 import qualified Data.PriorityQueue as PQ
-import qualified Data.WalkableMap as WM
-import Debug.Trace
+import qualified Data.WalkableMap   as WM
+import           Debug.Trace
 
 data Tile
   = Empty
@@ -31,17 +31,18 @@ readTile ch
   | otherwise = error ("Invalid character: " ++ show ch)
 
 showTile :: Tile -> Char
-showTile Empty = '.'
-showTile Wall = '#'
+showTile Empty    = '.'
+showTile Wall     = '#'
 showTile Entrance = '@'
-showTile (Key a) = a
+showTile (Key a)  = a
 showTile (Door a) = toUpper a
 
 data GPS =
   GPS
-    { cave :: Cave
+    { cave          :: Cave
     , collectedKeys :: String
-    , position :: Point
+    , position      :: Point
+    , cachedRoutes  :: M.Map (Point, Point) [Point]
     }
 
 parseCave :: String -> Cave
@@ -66,7 +67,7 @@ keys = map (\(k, Key v) -> (k, v)) . M.toList . M.filter match . WM.content
     match t =
       case t of
         Key a -> True
-        _ -> False
+        _     -> False
 
 reachableKeys :: GPS -> [(Point, [Point], Char)]
 reachableKeys GPS {..} =
@@ -96,7 +97,7 @@ walk path gps = (final, length path)
               let cave' =
                     case WM.findValue (Door a) cave of
                       [pos] -> WM.update pos Empty cave
-                      _ -> cave
+                      _     -> cave
               gps
                 { collectedKeys = a : collectedKeys
                 , cave = WM.update next Empty cave'
@@ -115,3 +116,11 @@ planPedometer (gps@GPS {..}, steps)
           where
             (gps', counter) = walk (reverse $ init path) gps
     shortest = L.minimumBy (\(_, c1) (_, c2) -> compare c1 c2) options
+
+routeInCache :: Point -> Point -> GPS -> Maybe [Point]
+routeInCache from to GPS {cachedRoutes = cr} = M.lookup (from, to) cr
+
+buildCache :: GPS -> GPS
+buildCache gps = undefined
+  where
+    allKeys = keys (cave gps)
