@@ -3,7 +3,7 @@ module Day03.Lib
   , allPointsOnPath
   ) where
 
-import Lib
+import           Lib
 
 data WireMovement =
   WireMovement Char Int

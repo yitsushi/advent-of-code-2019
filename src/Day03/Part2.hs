@@ -3,8 +3,8 @@ module Day03.Part2
   ) where
 
 import qualified Data.Map
-import Day03.Lib
-import Lib
+import           Day03.Lib
+import           Lib
 
 findCrossroads :: [Data.Map.Map Vector Int] -> Data.Map.Map Vector Int
 findCrossroads (aPath:bPath:_) = Data.Map.intersectionWith (+) aPath bPath

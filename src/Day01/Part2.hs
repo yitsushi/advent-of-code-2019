@@ -15,4 +15,4 @@ withExtraFuel = sum . init . extraFuel'
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = (show . sum . map (withExtraFuel . read) . words) input
+solve input      = (show . sum . map (withExtraFuel . read) . words) input

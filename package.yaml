@@ -30,6 +30,10 @@ dependencies:
 - mtl
 - walkable-map
 - unordered-containers
+- criterion
+- split
+- hspec
+- hspec-discover
 
 library:
   source-dirs: src
@@ -39,9 +43,9 @@ executables:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
-    - -threaded
+      #- -threaded
     - -rtsopts
-    - -with-rtsopts=-N
+      #- -with-rtsopts=-N
     dependencies:
     - advent-of-code
 
@@ -50,9 +54,9 @@ tests:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
-    - -threaded
+      #- -threaded
     - -rtsopts
-    - -with-rtsopts=-N
+      #- -with-rtsopts=-N
     dependencies:
     - advent-of-code
     - hspec
@@ -63,9 +67,9 @@ benchmarks:
     main:               Bench.hs
     source-dirs:        bench
     ghc-options:
-    - -threaded
+      #- -threaded
     - -rtsopts
-    - -with-rtsopts=-N
+      #- -with-rtsopts=-N
     dependencies:
     - advent-of-code
     - criterion

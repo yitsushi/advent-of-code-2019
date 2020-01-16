@@ -2,8 +2,8 @@ module Day06.Part1
   ( solve
   ) where
 
-import Data.List
-import Day06.Lib
+import           Data.List
+import           Day06.Lib
 
 countdown :: Int -> Node -> Int
 countdown level (Node _ []) = level

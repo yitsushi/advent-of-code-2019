@@ -5,7 +5,7 @@ module Day04.Lib
   , hasDouble
   ) where
 
-import Data.List
+import           Data.List
 
 newtype Bound =
   Bound (Int, Int)
@@ -13,6 +13,8 @@ newtype Bound =
 
 toBound :: [Int] -> Bound
 toBound (x:y:_) = Bound (x, y)
+toBound [_]     = error "Invalid value"
+toBound []      = error "Invalid value"
 
 allPossibleCode :: Bound -> [Int]
 allPossibleCode (Bound (x, y)) = [x .. y]
@@ -25,10 +27,10 @@ validPassword code
     digits = show code
     check :: String -> Bool
     check [] = True
-    check [a] = True
     check (a:b:xs)
       | a <= b = check (b : xs)
       | otherwise = False
+    check [_] = True
 
 hasDouble :: Eq a => [a] -> Bool
 hasDouble = elem 2 . map length . group
