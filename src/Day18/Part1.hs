@@ -8,6 +8,8 @@ import           Debug.Trace
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = show steps
+solve input
+  | trace (show $ collectedKeys gps) False = undefined
+  | otherwise = show steps
   where
     (gps, steps) = planPedometer (newGPS input, 0)

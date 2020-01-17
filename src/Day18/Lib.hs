@@ -88,8 +88,16 @@ keys = map (\(k, Key v) -> (k, v)) . M.toList . M.filter match . WM.content
         Key a -> True
         _     -> False
 
+merge :: String -> String -> String
+merge mem [] = mem
+merge mem (x:xs)
+  | x `elem` mem = merge mem xs
+  | otherwise = merge (mem ++ [x]) xs
+
 planPedometer :: (GPS, Int) -> (GPS, Int)
-planPedometer (gps@GPS {..}, steps) = shortest options
+planPedometer (gps@GPS {..}, steps)
+  | trace (show $ length $ remainingRoutes gps) False = undefined
+  | otherwise = shortest options
   where
     options = map mapper $ remainingRoutes gps
     shortest []  = (gps, steps)
@@ -97,16 +105,10 @@ planPedometer (gps@GPS {..}, steps) = shortest options
     mapper [] = (gps, steps)
     mapper path =
       planPedometer
-        ( gps
-            { position = head path
-            , collectedKeys =
-                Set.toList $
-                Set.fromList (collectedKeys ++ catMaybes keysOnPath)
-            }
-        , steps + length path)
+        ( gps {position = head path, collectedKeys = collected}
+        , steps + length path - 1)
       where
-        collected =
-          Set.toList (Set.fromList (collectedKeys ++ catMaybes keysOnPath))
+        collected = merge collectedKeys $ catMaybes keysOnPath
         keysOnPath = map maybeKey path
         maybeKey pos =
           case WM.valueAt cave pos of
@@ -118,7 +120,7 @@ routeInCache from to GPS {cachedRoutes = cr} =
   getFirst (First normal <> First rev)
   where
     normal = M.lookup (from, to) cr
-    rev = M.lookup (to, from) cr
+    rev = reverse <$> M.lookup (to, from) cr
 
 hasKeyFor :: Tile -> GPS -> Bool
 hasKeyFor (Door c) gps = c `elem` collectedKeys gps
