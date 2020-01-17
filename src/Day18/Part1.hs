@@ -10,14 +10,4 @@ solve :: String -> String
 solve "No Input" = "No Input Defined!"
 solve input = show steps
   where
-    cave' = parseCave input
-    start = entrance cave'
-    (gps, steps) =
-      planPedometer
-        ( GPS
-            { cave = cave'
-            , collectedKeys = []
-            , position = start
-            , cachedRoutes = M.fromList []
-            }
-        , 0)
+    (gps, steps) = planPedometer (newGPS input, 0)

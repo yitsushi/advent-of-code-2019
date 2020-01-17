@@ -9,13 +9,17 @@ import           Data.Maybe
 import           Data.Monoid
 import           Data.Point
 import qualified Data.PriorityQueue as PQ
+import qualified Data.Set           as Set
 import qualified Data.WalkableMap   as WM
 import           Debug.Trace
 
 debugger :: GPS
-debugger = do
-  let input =
-        "########################\n#...............b.C.D.f#\n#.######################\n#.....@.a.B.c.d.A.e.F.g#\n########################"
+debugger =
+  newGPS
+    "########################\n#...............b.C.D.f#\n#.######################\n#.....@.a.B.c.d.A.e.F.g#\n########################"
+
+newGPS :: String -> GPS
+newGPS input = do
   let c' = parseCave input
   let gps =
         GPS
@@ -84,59 +88,30 @@ keys = map (\(k, Key v) -> (k, v)) . M.toList . M.filter match . WM.content
         Key a -> True
         _     -> False
 
-reachableKeys :: GPS -> [(Point, [Point], Char)]
-reachableKeys GPS {..} =
-  map (\(Just PQ.Item {PQ.location = p, PQ.extra = e}, c) -> (p, e, c)) $
-  filter (\(p, _) -> isJust p) options
-  where
-    options = map walk (keys cave)
-    walk (pos, ch) =
-      ( WM.pathTo
-          PQ.Item {PQ.location = position, PQ.score = 0, PQ.extra = [position]}
-          pos
-          cave {WM.obstacles = obstacles}
-      , ch)
-    obstacles = Wall : map Door (map snd (keys cave) L.\\ collectedKeys)
-
-walk :: [Point] -> GPS -> (GPS, Int)
-walk [] gps = (gps, 0)
-walk path gps = (final, length path)
-  where
-    final = foldl step gps path
-    step gps@GPS {..} next = gps' {position = next}
-      where
-        tile = WM.valueAt cave next
-        gps' =
-          case tile of
-            Key a -> do
-              let cave' =
-                    case WM.findValue (Door a) cave of
-                      [pos] -> WM.update pos Empty cave
-                      _     -> cave
-              gps
-                { collectedKeys = a : collectedKeys
-                , cave = WM.update next Empty cave'
-                }
-            _ -> gps
-
-{-
 planPedometer :: (GPS, Int) -> (GPS, Int)
-planPedometer (gps@GPS {..}, steps)
-  | null reachable = (gps, steps)
-  | otherwise = shortest
+planPedometer (gps@GPS {..}, steps) = shortest options
   where
-    reachable = reachableKeys gps
-    options = map mapper reachable
+    options = map mapper $ remainingRoutes gps
+    shortest []  = (gps, steps)
+    shortest opt = L.minimumBy (\(_, c1) (_, c2) -> compare c1 c2) opt
+    mapper [] = (gps, steps)
+    mapper path =
+      planPedometer
+        ( gps
+            { position = head path
+            , collectedKeys =
+                Set.toList $
+                Set.fromList (collectedKeys ++ catMaybes keysOnPath)
+            }
+        , steps + length path)
       where
-        mapper (_, path, _) = planPedometer (gps', steps + counter)
-          where
-            (gps', counter) = walk (reverse $ init path) gps
-    shortest = L.minimumBy (\(_, c1) (_, c2) -> compare c1 c2) options
--}
-planPedometer :: (GPS, Int) -> (GPS, Int)
-planPedometer (gps@GPS {..}, steps) = (gps, steps)
-  where
-    options = remainingRoutes gps
+        collected =
+          Set.toList (Set.fromList (collectedKeys ++ catMaybes keysOnPath))
+        keysOnPath = map maybeKey path
+        maybeKey pos =
+          case WM.valueAt cave pos of
+            Key a -> Just a
+            _     -> Nothing
 
 routeInCache :: Point -> Point -> GPS -> Maybe [Point]
 routeInCache from to GPS {cachedRoutes = cr} =
