@@ -1,8 +1,9 @@
 module Demo.Part1
   ( solve
-  ) where
+  )
+where
 
-import Demo.Lib
+import           Demo.Lib
 
 solve :: String -> String
 solve = show . sum . map parseInt . words

@@ -1,8 +1,9 @@
 module Day05.Part1
   ( solve
-  ) where
+  )
+where
 
-import           IntcodeMachine hiding (input)
+import           IntcodeMachine          hiding ( input )
 
 solve :: String -> String
 solve "No Input" = "No Input Defined!"

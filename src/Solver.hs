@@ -1,6 +1,6 @@
 module Solver where
 
-import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad.IO.Class         ( liftIO )
 import           Data.Text
 import qualified Day01.Main
 import qualified Day02.Main
@@ -66,8 +66,4 @@ notImplementedYet day _ _ = "\n\n-- [Day" ++ day ++ "] Not Implemented Yet!\n"
 readInput :: String -> IO String
 readInput f = do
   dfe <- liftIO $ doesFileExist (f :: FilePath)
-  if dfe
-    then readFile f
-    else if f /= "-"
-           then pure f
-           else getContents
+  if dfe then readFile f else if f /= "-" then pure f else getContents

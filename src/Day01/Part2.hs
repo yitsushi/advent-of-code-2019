@@ -1,14 +1,14 @@
 module Day01.Part2
   ( solve
-  ) where
+  )
+where
 
 fuel :: Int -> Int
 fuel mass = mass `div` 3 - 2
 
 extraFuel' :: Int -> [Int]
-extraFuel' mass
-  | mass <= 0 = [0]
-  | otherwise = extraFuel' (fuel mass) ++ [mass]
+extraFuel' mass | mass <= 0 = [0]
+                | otherwise = extraFuel' (fuel mass) ++ [mass]
 
 withExtraFuel :: Int -> Int
 withExtraFuel = sum . init . extraFuel'

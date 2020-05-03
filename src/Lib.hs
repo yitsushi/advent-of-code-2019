@@ -1,7 +1,7 @@
 module Lib where
 
 --import Data.List
-import qualified Data.List as L
+import qualified Data.List                     as L
 
 data Vector
   = IntVector2D (Int, Int)
@@ -18,9 +18,9 @@ instance Num Vector where
   (-) (IntVector3D (x1, y1, z1)) (IntVector3D (x2, y2, z2)) =
     IntVector3D (x1 - x2, y1 - y2, z1 - z2)
   fromInteger = undefined
-  (*) = undefined
-  abs = undefined
-  signum = undefined
+  (*)         = undefined
+  abs         = undefined
+  signum      = undefined
 
 addVector :: Vector -> Vector -> Vector
 addVector (IntVector2D (x1, y1)) (IntVector2D (x2, y2)) =
@@ -36,7 +36,7 @@ addVector (IntVector3D (x1, y1, z1)) (IntVector3D (x2, y2, z2)) =
 -- >>> manhattan $ IntVector3D (14,-20,10)
 -- 44
 manhattan :: Vector -> Int
-manhattan (IntVector2D (x, y)) = abs x + abs y
+manhattan (IntVector2D (x, y)   ) = abs x + abs y
 manhattan (IntVector3D (x, y, z)) = abs x + abs y + abs z
 
 -- | Left padding
@@ -47,11 +47,9 @@ manhattan (IntVector3D (x, y, z)) = abs x + abs y + abs z
 -- >>> lpad 0 5 [1,5]
 -- [0,0,0,1,5]
 lpad :: a -> Int -> [a] -> [a]
-lpad with len xs
-  | len < length xs = xs
-  | otherwise = replicate (len - length ys) with ++ ys
-  where
-    ys = take len xs
+lpad with len xs | len < length xs = xs
+                 | otherwise       = replicate (len - length ys) with ++ ys
+  where ys = take len xs
 
 -- | Split list on a specific element
 --
@@ -62,10 +60,9 @@ lpad with len xs
 -- [[9],[3],[8,2,5],[2,5]]
 splitOn :: Eq a => a -> [a] -> [[a]]
 splitOn delimiter = foldr f [[]]
-  where
-    f c l@(x:xs)
-      | c == delimiter = [] : l
-      | otherwise = (c : x) : xs
+ where
+  f c l@(x : xs) | c == delimiter = [] : l
+                 | otherwise      = (c : x) : xs
 
 partition :: Int -> [a] -> [[a]]
 partition _ [] = []

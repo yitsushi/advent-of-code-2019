@@ -1,6 +1,6 @@
 module Day14.ResourceDatabase where
 
-import qualified Data.Map.Strict as Map
+import qualified Data.Map.Strict               as Map
 
 data ResourceIngredient =
   ResourceIngredient
@@ -27,13 +27,12 @@ saveResource db res = Map.insert (rName res) res db
 
 whatCanIDoFrom :: ResourceDatabase -> String -> ResourceDatabase
 whatCanIDoFrom db name = Map.filter hasAsIngredient db
-  where
-    hasAsIngredient res = any (\x -> name == riName x) (rIngredients res)
+  where hasAsIngredient res = any (\x -> name == riName x) (rIngredients res)
 
 ingredientFromTuple :: (Int, String) -> ResourceIngredient
 ingredientFromTuple (qty, name) =
-  ResourceIngredient {riName = name, riQuantity = qty}
+  ResourceIngredient { riName = name, riQuantity = qty }
 
 resourceFromTuple :: (Int, String) -> [ResourceIngredient] -> Resource
 resourceFromTuple (qty, name) ings =
-  Resource {rName = name, rQuantity = qty, rIngredients = ings}
+  Resource { rName = name, rQuantity = qty, rIngredients = ings }

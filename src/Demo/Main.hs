@@ -1,9 +1,10 @@
 module Demo.Main
   ( solve
-  ) where
+  )
+where
 
-import qualified Demo.Part1 as Part1
-import qualified Demo.Part2 as Part2
+import qualified Demo.Part1                    as Part1
+import qualified Demo.Part2                    as Part2
 
 solve :: Int -> String -> String
 solve 2 input = Part2.solve input

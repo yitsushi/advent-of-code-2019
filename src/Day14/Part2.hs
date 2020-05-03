@@ -1,10 +1,11 @@
 module Day14.Part2
   ( solve
-  ) where
+  )
+where
 
-import Day14.Lib
-import Day14.Pocket
-import Day14.ResourceDatabase
+import           Day14.Lib
+import           Day14.Pocket
+import           Day14.ResourceDatabase
 
 ceilInt :: Int -> Int -> Int
 ceilInt a b = ceiling (fromIntegral a / fromIntegral b)
@@ -19,16 +20,16 @@ ceilInt a b = ceiling (fromIntegral a / fromIntegral b)
 -- tl;dr: I don't care
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = show $ approx 1 1
-  where
-    target = 10 ^ 12
-    database =
-      (foldl saveResource newResourceDatabase . map parseRecipe . lines) input
-    approx current step
-      | step == 1 && requiredNext >= target = current
-      | required < target && requiredNext < target =
-        approx (current + step) (step * 2)
-      | otherwise = approx current (ceilInt step 2)
-      where
-        required = oreForFuel database current
-        requiredNext = oreForFuel database (current + step)
+solve input      = show $ approx 1 1
+ where
+  target = 10 ^ 12
+  database =
+    (foldl saveResource newResourceDatabase . map parseRecipe . lines) input
+  approx current step
+    | step == 1 && requiredNext >= target = current
+    | required < target && requiredNext < target = approx (current + step)
+                                                          (step * 2)
+    | otherwise = approx current (ceilInt step 2)
+   where
+    required     = oreForFuel database current
+    requiredNext = oreForFuel database (current + step)

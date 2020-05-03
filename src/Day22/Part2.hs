@@ -1,9 +1,10 @@
 module Day22.Part2
   ( solve
-  ) where
+  )
+where
 
-import Data.List
-import Day22.Lib
+import           Data.List
+import           Day22.Lib
 
 {-
 deckSize :: Int
@@ -29,4 +30,4 @@ solve input =
 -}
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input = "Not Implemented Yet!"
+solve input      = "Not Implemented Yet!"

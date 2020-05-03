@@ -1,6 +1,7 @@
 module Day01.Part1
   ( solve
-  ) where
+  )
+where
 
 fuel :: Int -> Int
 fuel mass = mass `div` 3 - 2

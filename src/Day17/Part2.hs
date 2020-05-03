@@ -2,7 +2,7 @@ module Day17.Part2 where
 
 import           Data.Char
 import           Data.List
-import qualified Data.Map.Strict as Map
+import qualified Data.Map.Strict               as Map
 import           Data.Maybe
 import           Day17.Lib
 import           IntcodeMachine
@@ -37,21 +37,19 @@ import           IntcodeMachine
 -}
 solve :: String -> String
 solve "No Input" = "No Input Defined!"
-solve input =
-  case plan of
-    Just p -> show $ extractScore $ executeMachine $ clone machine p
-    _      -> "No solution! :("
-  where
-    machine = newMachine input
-    path = screenToSteps $ machineScreen $ executeMachine machine
-    plan = generatePossibleRoutines path
-    extractScore = last . output . machineProgram
-    clone :: Machine -> InputSequence -> Machine
-    clone ma is = ma {machineProgram = comp}
-      where
-        comp =
-          writeMemory 0 2 $
-          feedInputs (machineProgram ma) (renderInputSequence is)
+solve input      = case plan of
+  Just p -> show $ extractScore $ executeMachine $ clone machine p
+  _      -> "No solution! :("
+ where
+  machine      = newMachine input
+  path         = screenToSteps $ machineScreen $ executeMachine machine
+  plan         = generatePossibleRoutines path
+  extractScore = last . output . machineProgram
+  clone :: Machine -> InputSequence -> Machine
+  clone ma is = ma { machineProgram = comp }
+   where
+    comp =
+      writeMemory 0 2 $ feedInputs (machineProgram ma) (renderInputSequence is)
 
 --solve input = unlines $ renderScreen machine
 data Movement
@@ -85,12 +83,10 @@ data InputSequence =
   deriving (Show)
 
 renderInputSequence :: InputSequence -> [Int]
-renderInputSequence InputSequence { routines = r
-                                  , aSequence = a
-                                  , bSequence = b
-                                  , cSequence = c
-                                  } =
-  toCommandSequence r ++ concatMap toCommandSequence [a, b, c] ++ [ord 'n', 10]
+renderInputSequence InputSequence { routines = r, aSequence = a, bSequence = b, cSequence = c }
+  = toCommandSequence r
+    ++ concatMap toCommandSequence [a, b, c]
+    ++ [ord 'n', 10]
 
 type RoutineSequence = [RoutineCommand]
 
@@ -106,82 +102,80 @@ instance CommandSequenceElem Routine where
 
 pathToSequence :: [Movement] -> RoutineSequence
 pathToSequence = map convert . group
-  where
-    convert [Lft]  = L
-    convert [Rght] = R
-    convert xs     = ForwardValue (length xs)
+ where
+  convert [Lft ] = L
+  convert [Rght] = R
+  convert xs     = ForwardValue (length xs)
 
 type Possibility = ([Movement], [Movement], [Movement])
 
 toCommandSequence :: CommandSequenceElem a => [a] -> [Int]
-toCommandSequence xs = (Data.List.intercalate [44] . map toIntValues) xs ++ [10]
+toCommandSequence xs =
+  (Data.List.intercalate [44] . map toIntValues) xs ++ [10]
 
 generatePossibleRoutines :: [Movement] -> Maybe InputSequence
 generatePossibleRoutines path
-  | (not . null) allPossibilities =
-    Just (toInputSequence $ head allPossibilities)
+  | (not . null) allPossibilities = Just
+    (toInputSequence $ head allPossibilities)
   | otherwise = Nothing
-  where
-    allPossibilities = filter filterRoutes $ noRemainders possibleABC
-    filterRoutes :: ([Routine], Possibility) -> Bool
-    filterRoutes (r, (a, b, c)) =
-      ((\c -> 1 < c && c <= 21) . length . toCommandSequence) r
-    toInputSequence :: ([Routine], Possibility) -> InputSequence
-    toInputSequence (r, (a, b, c)) =
-      InputSequence
-        { routines = r
-        , aSequence = pathToSequence a
-        , bSequence = pathToSequence b
-        , cSequence = pathToSequence c
-        }
-    gen =
-      filter (goodLength . length . toCommandSequence . pathToSequence) . inits
-      where
-        goodLength x = 1 < x && x <= 21
-    dropPart a = drop (length a)
-    possibleA = gen path
-    possibleAB = concatMap (build path) possibleA
-      where
-        build p a
-          | take (length a) p == a = build (dropPart a p) a
-          | otherwise = zip (repeat a) (gen p)
-    possibleABC = map repack $ concatMap (build path) possibleAB
-      where
-        repack ((a, b), c) = (a, b, c)
-        build p (a, b)
-          | take (length a) p == a = build (dropPart a p) (a, b)
-          | take (length b) p == b = build (dropPart b p) (a, b)
-          | otherwise = zip (repeat (a, b)) (gen p)
-    noRemainders :: [Possibility] -> [([Routine], Possibility)]
-    noRemainders =
-      map unwrap . filter removeNothing . map (\x -> (converted x, x))
-      where
-        converted = convert path
-        removeNothing (r, _) = isJust r
-        unwrap (Just r, p) = (r, p)
-    convert :: [Movement] -> Possibility -> Maybe [Routine]
-    convert [] _ = Just []
-    convert p (a, b, c)
-      | a == aLenList =
-        (++) <$> Just [A] <*> convert (drop (length a) p) (a, b, c)
-      | b == bLenList =
-        (++) <$> Just [B] <*> convert (drop (length b) p) (a, b, c)
-      | c == cLenList =
-        (++) <$> Just [C] <*> convert (drop (length c) p) (a, b, c)
-      | otherwise = Nothing
-      where
-        aLenList = take (length a) p
-        bLenList = take (length b) p
-        cLenList = take (length c) p
+ where
+  allPossibilities = filter filterRoutes $ noRemainders possibleABC
+  filterRoutes :: ([Routine], Possibility) -> Bool
+  filterRoutes (r, (a, b, c)) =
+    ((\c -> 1 < c && c <= 21) . length . toCommandSequence) r
+  toInputSequence :: ([Routine], Possibility) -> InputSequence
+  toInputSequence (r, (a, b, c)) = InputSequence { routines  = r
+                                                 , aSequence = pathToSequence a
+                                                 , bSequence = pathToSequence b
+                                                 , cSequence = pathToSequence c
+                                                 }
+  gen =
+    filter (goodLength . length . toCommandSequence . pathToSequence) . inits
+    where goodLength x = 1 < x && x <= 21
+  dropPart a = drop (length a)
+  possibleA  = gen path
+  possibleAB = concatMap (build path) possibleA
+   where
+    build p a | take (length a) p == a = build (dropPart a p) a
+              | otherwise              = zip (repeat a) (gen p)
+  possibleABC = map repack $ concatMap (build path) possibleAB
+   where
+    repack ((a, b), c) = (a, b, c)
+    build p (a, b) | take (length a) p == a = build (dropPart a p) (a, b)
+                   | take (length b) p == b = build (dropPart b p) (a, b)
+                   | otherwise              = zip (repeat (a, b)) (gen p)
+  noRemainders :: [Possibility] -> [([Routine], Possibility)]
+  noRemainders = map unwrap . filter removeNothing . map
+    (\x -> (converted x, x))
+   where
+    converted = convert path
+    removeNothing (r, _) = isJust r
+    unwrap (Just r, p) = (r, p)
+  convert :: [Movement] -> Possibility -> Maybe [Routine]
+  convert [] _ = Just []
+  convert p (a, b, c)
+    | a == aLenList = (++) <$> Just [A] <*> convert
+      (drop (length a) p)
+      (a, b, c)
+    | b == bLenList = (++) <$> Just [B] <*> convert
+      (drop (length b) p)
+      (a, b, c)
+    | c == cLenList = (++) <$> Just [C] <*> convert
+      (drop (length c) p)
+      (a, b, c)
+    | otherwise = Nothing
+   where
+    aLenList = take (length a) p
+    bLenList = take (length b) p
+    cLenList = take (length c) p
 
 extractRobot :: Screen -> ((Int, Int), Direction)
 extractRobot = extract . head . dropWhile catchRobot . Map.toList
-  where
-    catchRobot (_, tile) =
-      case tile of
-        Robot d -> False
-        _       -> True
-    extract (pos, Robot dir) = (pos, dir)
+ where
+  catchRobot (_, tile) = case tile of
+    Robot d -> False
+    _       -> True
+  extract (pos, Robot dir) = (pos, dir)
 
 instance Show Movement where
   show Lft     = "L"
@@ -190,32 +184,32 @@ instance Show Movement where
 
 turnDirection :: Direction -> Movement -> Direction
 turnDirection North Lft  = West
-turnDirection West Lft   = South
+turnDirection West  Lft  = South
 turnDirection South Lft  = East
-turnDirection East Lft   = North
+turnDirection East  Lft  = North
 turnDirection South Rght = West
-turnDirection East Rght  = South
+turnDirection East  Rght = South
 turnDirection North Rght = East
-turnDirection West Rght  = North
-turnDirection dir _      = dir
+turnDirection West  Rght = North
+turnDirection dir   _    = dir
 
 moveNext :: ((Int, Int), Direction) -> ((Int, Int), Direction)
 moveNext ((x, y), North) = ((x, y - 1), North)
 moveNext ((x, y), South) = ((x, y + 1), South)
-moveNext ((x, y), East)  = ((x + 1, y), East)
-moveNext ((x, y), West)  = ((x - 1, y), West)
+moveNext ((x, y), East ) = ((x + 1, y), East)
+moveNext ((x, y), West ) = ((x - 1, y), West)
 moveNext _               = error "Something went wrong."
 
 isValid :: Screen -> (Int, Int) -> Direction -> Bool
 isValid screen (x, y) = check
-  where
-    comp :: (Int, Int) -> Bool
-    comp pos = (==) (Just Scaffold) (Map.lookup pos screen)
-    check :: Direction -> Bool
-    check North = comp (x, y - 1)
-    check South = comp (x, y + 1)
-    check East  = comp (x + 1, y)
-    check West  = comp (x - 1, y)
+ where
+  comp :: (Int, Int) -> Bool
+  comp pos = (==) (Just Scaffold) (Map.lookup pos screen)
+  check :: Direction -> Bool
+  check North = comp (x, y - 1)
+  check South = comp (x, y + 1)
+  check East  = comp (x + 1, y)
+  check West  = comp (x - 1, y)
 
 lft :: Direction -> Direction
 lft East  = North
@@ -231,11 +225,11 @@ rght South = West
 
 screenToSteps :: Screen -> [Movement]
 screenToSteps screen = consume $ extractRobot screen
-  where
-    path = Map.filter (== Scaffold) screen
-    consume :: ((Int, Int), Direction) -> [Movement]
-    consume (pos, facing)
-      | isValid path pos facing = Forward : consume (moveNext (pos, facing))
-      | isValid path pos (lft facing) = Lft : consume (pos, lft facing)
-      | isValid path pos (rght facing) = Rght : consume (pos, rght facing)
-      | otherwise = []
+ where
+  path = Map.filter (== Scaffold) screen
+  consume :: ((Int, Int), Direction) -> [Movement]
+  consume (pos, facing)
+    | isValid path pos facing = Forward : consume (moveNext (pos, facing))
+    | isValid path pos (lft facing)  = Lft : consume (pos, lft facing)
+    | isValid path pos (rght facing) = Rght : consume (pos, rght facing)
+    | otherwise                      = []
