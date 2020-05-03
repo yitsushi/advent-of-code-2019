@@ -1,7 +1,7 @@
 module LibSpec where
 
-import Lib
-import Test.Hspec
+import           Lib
+import           Test.Hspec
 
 spec :: Spec
 spec = do

@@ -1,7 +1,7 @@
 module Day01Spec.Part2Spec where
 
-import Day01.Part2
-import Test.Hspec
+import           Day01.Part2
+import           Test.Hspec
 
 spec :: Spec
 spec = do

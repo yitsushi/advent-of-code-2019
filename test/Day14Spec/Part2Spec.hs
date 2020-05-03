@@ -1,8 +1,8 @@
 module Day14Spec.Part2Spec where
 
-import Day14.Part2
-import Helper
-import Test.Hspec hiding (example)
+import           Day14.Part2
+import           Helper
+import           Test.Hspec              hiding ( example )
 
 example :: String -> String -> String -> SpecWith (Arg Expectation)
 example title file expected = do
