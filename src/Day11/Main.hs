@@ -3,6 +3,8 @@ module Day11.Main
   )
 where
 
+-- Day 11: Space Police
+
 import qualified Day11.Part1                   as Part1
 import qualified Day11.Part2                   as Part2
 

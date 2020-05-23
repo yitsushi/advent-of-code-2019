@@ -3,6 +3,8 @@ module Day22.Main
   )
 where
 
+-- Day 22: Slam Shuffle
+
 import qualified Day22.Part1                   as Part1
 import qualified Day22.Part2                   as Part2
 

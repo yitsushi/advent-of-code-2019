@@ -3,6 +3,8 @@ module Day08.Main
   )
 where
 
+-- Day 8: Space Image Format
+
 import qualified Day08.Part1                   as Part1
 import qualified Day08.Part2                   as Part2
 

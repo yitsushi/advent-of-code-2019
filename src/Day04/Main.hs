@@ -3,6 +3,8 @@ module Day04.Main
   )
 where
 
+-- Day 4: Secure Container
+
 import qualified Day04.Part1                   as Part1
 import qualified Day04.Part2                   as Part2
 

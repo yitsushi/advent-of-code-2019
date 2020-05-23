@@ -3,6 +3,8 @@ module Day12.Main
   )
 where
 
+-- Day 12: The N-Body Problem
+
 import qualified Day12.Part1                   as Part1
 import qualified Day12.Part2                   as Part2
 

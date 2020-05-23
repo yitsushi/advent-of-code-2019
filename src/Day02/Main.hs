@@ -3,6 +3,8 @@ module Day02.Main
   )
 where
 
+-- Day 2: 1202 Program Alarm
+
 import qualified Day02.Part1                   as Part1
 import qualified Day02.Part2                   as Part2
 

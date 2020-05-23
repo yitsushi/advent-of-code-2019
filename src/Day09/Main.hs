@@ -3,6 +3,8 @@ module Day09.Main
   )
 where
 
+-- Day 9: Sensor Boost
+
 import qualified Day09.Part1                   as Part1
 import qualified Day09.Part2                   as Part2
 

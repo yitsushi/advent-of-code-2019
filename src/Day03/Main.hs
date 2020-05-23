@@ -3,6 +3,8 @@ module Day03.Main
   )
 where
 
+-- Day 3: Crossed Wires
+
 import qualified Day03.Part1                   as Part1
 import qualified Day03.Part2                   as Part2
 

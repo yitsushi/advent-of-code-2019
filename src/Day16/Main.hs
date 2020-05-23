@@ -3,6 +3,8 @@ module Day16.Main
   )
 where
 
+-- Day 16: Flawed Frequency Transmission
+
 import qualified Day16.Part1                   as Part1
 import qualified Day16.Part2                   as Part2
 

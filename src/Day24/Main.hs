@@ -3,6 +3,8 @@ module Day24.Main
   )
 where
 
+-- Day 24: Planet of Discord
+
 import qualified Day24.Part1                   as Part1
 import qualified Day24.Part2                   as Part2
 

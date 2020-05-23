@@ -3,6 +3,8 @@ module Day06.Main
   )
 where
 
+-- Day 6: Universal Orbit Map
+
 import qualified Day06.Part1                   as Part1
 import qualified Day06.Part2                   as Part2
 

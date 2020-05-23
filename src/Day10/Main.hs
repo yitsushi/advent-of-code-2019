@@ -3,6 +3,8 @@ module Day10.Main
   )
 where
 
+-- Day 10: Monitoring Station
+
 import qualified Day10.Part1                   as Part1
 import qualified Day10.Part2                   as Part2
 
